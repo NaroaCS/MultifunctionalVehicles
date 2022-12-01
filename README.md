@@ -13,4 +13,4 @@ Agent-Based Model developped in the [CityScience](https://www.media.mit.edu/grou
 - The `Agents.gaml` file specifies simulation species and their behaviors.
 - The `Loggers.gaml` file generates the output files
 
-Some basic functions are based on our previous work [VehicleClustering](https://github.com/CityScope/VehicleClustering)
+Some basic functions are based on our previous work [FoodDeliveries](https://github.com/CityScope/FoodDeliveries)
