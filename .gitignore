@@ -1,5 +1,6 @@
 .metadata/
 .cache/
+results
 
 .DS_Store
 .gama_application_workspace

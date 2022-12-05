@@ -6,14 +6,14 @@ global {
 	//----------------------Simulation Parameters------------------------
 	
 	//Simulation time step
-	float step <- 2 #sec; 
+	float step <- 2 #sec; //TODO: Change to 2 
 	
 	//Simulation starting date
 	date starting_date <- date("2021-10-12 08:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
-	date logDate <- date("2022-11-30 10:30:00");
+	date logDate <- date("2022-12-05 14:53:00");
 	
 	date nowDate <- #now;
 	
@@ -22,23 +22,23 @@ global {
 	int numberOfHours <- 24; //WARNING: If one day, we can also specify the number of hours, otherwise set 24h
 	
 	//----------------------Logging Parameters------------------------
-	bool loggingEnabled <- false parameter: "Logging" category: "Logs";
+	bool loggingEnabled <- true parameter: "Logging" category: "Logs";
 	bool printsEnabled <- false parameter: "Printing" category: "Logs";
 	
 	bool autonomousBikeEventLog <-true parameter: "Autonomous Bike Event/Trip Log" category: "Logs";
 	
-	bool peopleTripLog <-false parameter: "People Trip Log" category: "Logs";
-	bool peopleEventLog <-false parameter: "People Event Log" category: "Logs";
+	bool peopleTripLog <-true parameter: "People Trip Log" category: "Logs";
+	bool peopleEventLog <-true parameter: "People Event Log" category: "Logs";
 	
 	bool packageTripLog <-true parameter: "Package Trip Log" category: "Logs";
 	bool packageEventLog <-true parameter: "Package Event Log" category: "Logs";
 		
 	bool stationChargeLogs <- true parameter: "Station Charge Log" category: "Logs";
 	
-	bool roadsTraveledLog <- true parameter: "Roads Traveled Log" category: "Logs";
+	bool roadsTraveledLog <- false parameter: "Roads Traveled Log" category: "Logs";
 	
 	//-----------------Autonomous Bike Parameters-----------------------
-	int numAutonomousBikes <- 500				min: 0 max: 500 parameter: "Num Autonomous Bikes:" category: "Bike";
+	int numAutonomousBikes <- 200				min: 0 max: 500 parameter: "Num Autonomous Bikes:" category: "Bike";
 	float maxBatteryLifeAutonomousBike <- 50000.0 #m	min: 10000#m max: 70000#m parameter: "Autonomous Bike Battery Capacity (m):" category: "Bike"; //battery capacity in m
 	float PickUpSpeedAutonomousBike <-  8/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Pick-up Speed (m/s):" category:  "Bike";
 	float RidingSpeedAutonomousBike <-  PickUpSpeedAutonomousBike min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Riding Speed (m/s):" category:  "Bike";

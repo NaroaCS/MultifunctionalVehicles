@@ -14,11 +14,6 @@ global {
 		return autonomousBike where (each.availableForRideAB());
 	}
 		
-	float autonomousBike_distance_PUP_people <- 0.0;
-	float autonomousBike_distance_PUP_package <- 0.0;
-	float autonomousBike_distance_D_people <- 0.0;
-	float autonomousBike_distance_D_package <- 0.0;
-	float autonomousBike_distance_C <- 0.0;
 		
 	bool requestAutonomousBike(people person, package pack, point destination) { 
 
@@ -174,7 +169,6 @@ species package control: fsm skills: [moving] {
 	
 	point final_destination; 
     point target; 
-    point closestIntersection;
     float waitTime;
         
 	aspect base {
@@ -495,6 +489,7 @@ species autonomousBike control: fsm skills: [moving] {
 	float batteryLife min: 0.0 max: maxBatteryLifeAutonomousBike; 
 	float distancePerCycle;
 	
+	float distanceTraveledBike;
 	path travelledPath; 
 	
 	bool canMove {
@@ -536,10 +531,10 @@ species autonomousBike control: fsm skills: [moving] {
 	state low_battery {
 		enter{
 			target <- (chargingStation closest_to(self)).location; 
-			autonomousBike_distance_C <- target distance_to location;
+			distanceTraveledBike <- target distance_to location;
 			if autonomousBikeEventLog {
 				ask eventLogger { do logEnterState(myself.state); }
-				ask travelLogger { do logRoads(autonomousBike_distance_C);}
+				ask travelLogger { do logRoads(myself.distanceTraveledBike);}
 			}
 		}
 		transition to: getting_charge when: self.location = target {}
@@ -620,10 +615,10 @@ species autonomousBike control: fsm skills: [moving] {
 	state picking_up_people {
 			enter {
 				target <- rider.target;
-				autonomousBike_distance_PUP_people <- target distance_to location;
+				distanceTraveledBike <- target distance_to location;
 				if autonomousBikeEventLog {
 					ask eventLogger { do logEnterState("Picking up " + myself.rider); }
-					ask travelLogger { do logRoads(autonomousBike_distance_PUP_people);}
+					ask travelLogger { do logRoads(myself.distanceTraveledBike);}
 				}
 			}
 			transition to: in_use_people when: (location=target and rider.location=target) {}
@@ -635,10 +630,10 @@ species autonomousBike control: fsm skills: [moving] {
 	state picking_up_packages {
 			enter {
 				target <- delivery.target; 
-				autonomousBike_distance_PUP_package <- target distance_to location;
+				distanceTraveledBike <- target distance_to location;
 				if autonomousBikeEventLog {
 					ask eventLogger { do logEnterState("Picking up " + myself.delivery); }
-					ask travelLogger { do logRoads(autonomousBike_distance_PUP_package);}
+					ask travelLogger { do logRoads(myself.distanceTraveledBike);}
 				}
 			}
 			transition to: in_use_packages when: (location=target and delivery.location=target) {}
@@ -650,10 +645,10 @@ species autonomousBike control: fsm skills: [moving] {
 	state in_use_people {
 		enter {
 			target <- (road closest_to rider.final_destination).location;
-			autonomousBike_distance_D_people <- target distance_to location;
+			distanceTraveledBike <- target distance_to location;
 			if autonomousBikeEventLog {
 				ask eventLogger { do logEnterState("In Use " + myself.rider); }
-				ask travelLogger { do logRoads(autonomousBike_distance_D_people);}
+				ask travelLogger { do logRoads(myself.distanceTraveledBike);}
 			}
 		}
 		transition to: wandering when: location=target {
@@ -667,10 +662,10 @@ species autonomousBike control: fsm skills: [moving] {
 	state in_use_packages {
 		enter {
 			target <- (road closest_to delivery.final_destination).location;  
-			autonomousBike_distance_D_package <- target distance_to location;
+			distanceTraveledBike <- target distance_to location;
 			if autonomousBikeEventLog {
 				ask eventLogger { do logEnterState("In Use " + myself.delivery); }
-				ask travelLogger { do logRoads(autonomousBike_distance_D_package);}
+				ask travelLogger { do logRoads(myself.distanceTraveledBike);}
 			}
 		}
 		transition to: wandering when: location=target {
