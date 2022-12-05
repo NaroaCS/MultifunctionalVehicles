@@ -9,7 +9,7 @@ global {
 	float step <- 2 #sec; 
 	
 	//Simulation starting date
-	date starting_date <- date("2021-10-12 05:00:00"); 
+	date starting_date <- date("2021-10-12 08:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
@@ -43,7 +43,7 @@ global {
 	float PickUpSpeedAutonomousBike <-  8/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Pick-up Speed (m/s):" category:  "Bike";
 	float RidingSpeedAutonomousBike <-  PickUpSpeedAutonomousBike min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Riding Speed (m/s):" category:  "Bike";
 	float minSafeBatteryAutonomousBike <- 0.25*maxBatteryLifeAutonomousBike #m; //Amount of battery at which we seek battery and that is always reserved when charging another bike
-	float nightSafeBatteryAutonomousBike <- 0.9*maxBatteryLifeAutonomousBike #m; 
+	//float nightSafeBatteryAutonomousBike <- 0.9*maxBatteryLifeAutonomousBike #m; 
 	
 	//----------------------numChargingStationsion Parameters------------------------
 	//----------------------------------Before---------------------------------------
@@ -71,7 +71,7 @@ global {
      
     //--------------------------Demand Parameters-----------------------------
     string cityDemandFolder <- "./../includes/Demand";
-    csv_file demand_csv <- csv_file (cityDemandFolder+ "/user_trips_new.csv",true); // Change to user_trips_new when wanting to mix people and packages
+    csv_file demand_csv <- csv_file (cityDemandFolder+ "/user_demand_cambridge_oct12.csv",true); 
     csv_file pdemand_csv <- csv_file (cityDemandFolder+ "/fooddeliverytrips_cambridge.csv",true);
        
     //----------------------Map Parameters------------------------

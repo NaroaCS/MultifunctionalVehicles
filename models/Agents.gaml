@@ -6,9 +6,9 @@ global {
 	
 	float distanceInGraph (point origin, point destination) {
 		return origin distance_to destination;	
-	}
+	} //TODO: Review this, I think I put it to fix an error
 	
-	int chargingStationCapacity;
+	//int chargingStationCapacity;
 
 	list<autonomousBike> availableAutonomousBikes(people person , package delivery) {
 		return autonomousBike where (each.availableForRideAB());
@@ -27,7 +27,7 @@ global {
 		if empty(available) {
 			return false;
 		} else {
-			if person != nil{
+			if person != nil{  
 				autonomousBike b <- available closest_to(person);
 			
 				if !autonomousBikeClose(person,nil,b) and pack != nil{
@@ -100,22 +100,6 @@ species building {
 	string type; 
 }
 
-/*species chargingStation {
-	list<autonomousBike> autonomousBikesToCharge;
-	float lat;
-	float lon;
-	
-	point point_station;
-	aspect base {
-		draw circle(25) color:#gamaorange border:#black;		
-	}
-	
-	reflex chargeBikes {
-		ask chargingStationCapacity first autonomousBikesToCharge {
-			batteryLife <- batteryLife + step*V2IChargingRate;
-		}
-	}
-}*/
 
 species chargingStation{
 	
@@ -125,14 +109,14 @@ species chargingStation{
 	
 	float lat;
 	float lon;
-	int capacity;
+	int capacity; 
 	
 	aspect base{
 		draw hexagon(25,25) color:color border:#black;
 	}
 	
 	reflex chargeBikes {
-		ask chargingStationCapacity first autonomousBikesToCharge {
+		ask capacity first autonomousBikesToCharge {
 			batteryLife <- batteryLife + step*V2IChargingRate;
 		}
 	}
@@ -223,7 +207,6 @@ species package control: fsm skills: [moving] {
     state requestingAutonomousBike {
     	
     	enter {
-    		target <- (road closest_to(self)).location;
     		if register = 1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState; }}    		
     		if !host.requestAutonomousBike(person,self,final_destination) {
     			register <- 0;
@@ -231,9 +214,10 @@ species package control: fsm skills: [moving] {
     			register <- 1;
     		}
     	}
-    	transition to: firstmile when: register = 1{}
+    	transition to: firstmile when: register = 1{		
+    		 target <- (road closest_to(self)).location;
+    	}
     	transition to: retry when: register = 0 {
-    		target <- final_destination;
     	}
     	exit {
     		if register = 1 and packageEventLog {ask logger { do logExitState; }}
@@ -241,9 +225,7 @@ species package control: fsm skills: [moving] {
     }
     
     state retry {
-    	
-    	transition to: requestingAutonomousBike when: timeToTravel() {
-    		final_destination <- target_point;
+    	transition to: requestingAutonomousBike{ //TODO: Do we need when: timetotravel=?
     	}
     }
 	
@@ -305,12 +287,12 @@ species people control: fsm skills: [moving] {
 	rgb color;
 	
     map<string, rgb> color_map <- [
-    	"wandering":: #transparent,
+    	"wandering":: #blue,
 		"requesting_autonomousBike":: #springgreen,
 		"awaiting_autonomousBike":: #springgreen,
 		"riding_autonomousBike":: #gamagreen,
-		"firstmile":: #magenta,
-		"lastmile":: #magenta
+		"firstmile":: #blue,
+		"lastmile":: #blue
 	];
 	
 	//loggers
@@ -435,13 +417,13 @@ species autonomousBike control: fsm skills: [moving] {
 	rgb color;
 	
 	map<string, rgb> color_map <- [
-		"wandering"::#transparent,
+		"wandering"::#blue,
 		
 		"low_battery":: #red,
-		"night_recharging":: #orangered,
+		//"night_recharging":: #orangered,
 		"getting_charge":: #red,
-		"getting_night_charge":: #orangered,
-		"night_relocating":: #springgreen,
+		//"getting_night_charge":: #orangered,
+		//"night_relocating":: #springgreen,
 		
 		"picking_up_people"::#springgreen,
 		"picking_up_packages"::#mediumorchid,
@@ -494,12 +476,12 @@ species autonomousBike control: fsm skills: [moving] {
 			return false;
 		}
 	}
-	bool setNightChargingTime { 
+	/*bool setNightChargingTime { 
 		if (batteryLife < nightSafeBatteryAutonomousBike) and (current_date.hour>=2) and (current_date.hour<5){ return true; } 
 		else {
 			return false;
 		}
-	}
+	}*/
 	float energyCost(float distance) {
 		return distance;
 	}
@@ -508,7 +490,7 @@ species autonomousBike control: fsm skills: [moving] {
 	}
 	//----------------MOVEMENT-----------------
 	point target;
-	point nightorigin;
+	//point nightorigin;
 	
 	float batteryLife min: 0.0 max: maxBatteryLifeAutonomousBike; 
 	float distancePerCycle;
@@ -545,7 +527,7 @@ species autonomousBike control: fsm skills: [moving] {
 		transition to: picking_up_people when: rider != nil and activity = 1{}
 		transition to: picking_up_packages when: delivery != nil and activity = 0{}
 		transition to: low_battery when: setLowBattery() {}
-		transition to: night_recharging when: setNightChargingTime() {nightorigin <- self.location;}
+		//transition to: night_recharging when: setNightChargingTime() {nightorigin <- self.location;}
 		exit {
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}
@@ -565,7 +547,7 @@ species autonomousBike control: fsm skills: [moving] {
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}
 	}
-	state night_recharging {
+	/*state night_recharging {
 		enter{
 			target <- (chargingStation closest_to(self)).location; 
 			autonomousBike_distance_C <- target distance_to location;
@@ -578,7 +560,7 @@ species autonomousBike control: fsm skills: [moving] {
 		exit {
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}
-	}
+	}*/
 	
 	state getting_charge {
 		enter {
@@ -600,7 +582,7 @@ species autonomousBike control: fsm skills: [moving] {
 		}
 	}
 	
-	state getting_night_charge {
+	/*state getting_night_charge { //TODO: Think if we want to reactivate this
 		enter {
 			if stationChargeLogs{
 				ask eventLogger { do logEnterState("Charging at " + (chargingStation closest_to myself)); }
@@ -618,9 +600,9 @@ species autonomousBike control: fsm skills: [moving] {
 				autonomousBikesToCharge <- autonomousBikesToCharge - myself;
 			}
 		}
-	}
+	}*/
 	
-	state night_relocating {
+	/*state night_relocating {
 		enter{
 			target <- nightorigin;
 			autonomousBike_distance_C <- target distance_to location;
@@ -633,7 +615,7 @@ species autonomousBike control: fsm skills: [moving] {
 		exit {
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}
-	}
+	}*/
 			
 	state picking_up_people {
 			enter {

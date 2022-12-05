@@ -35,7 +35,7 @@ global {
 		// -------------------------------------Location of the charging stations----------------------------------------   
 		//-----------------------------------------------Before----------------------------------------------------------
 		
-		/*list<int> tmpDist;
+		/*list<int> tmpDist; //TODO: We might reactivate this to make the number of stations more reasonable.
 	    		
 		loop vertex over: roadNetwork.vertices {
 			create intersection {
@@ -92,7 +92,7 @@ global {
 			{
 				location <- to_GAMA_CRS({lon,lat},"EPSG:4326").location;
 				
-			 	chargingStationCapacity <- capacity;
+			 	//chargingStationCapacity <- capacity;
 			}
 			
 		// -------------------------------------------The Bikes -----------------------------------------
@@ -141,6 +141,8 @@ global {
 			start_h <- int(start_h_str);
 			string start_min_str <- string(start_hour,'mm');
 			start_min <- int(start_min_str);
+			
+			write "Start "+start_point+ " " +start_h+ ":"+ start_min;
 			
 			}
 						

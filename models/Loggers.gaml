@@ -59,7 +59,6 @@ global {
 		"------------------------------STATION PARAMETERS------------------------------",
 		"Number of Charging Stations: "+string(numChargingStations),
 		"V2I Charging Rate: "+string(V2IChargingRate  with_precision 2),
-		"Charging Station Capacity: "+string(chargingStationCapacity),
 		
 		"------------------------------MAP PARAMETERS------------------------------",
 		"City Map Name: "+string(cityScopeCity),
