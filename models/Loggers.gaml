@@ -318,7 +318,7 @@ species packageLogger parent: Logger mirrors: package {
 					served <- false;
 				}
 				match "delivering_autonomousBike" {
-					waitTime <- (cycle*step - cycleRequestingAutonomousBike*step)/60;
+					waitTime <- (cycle*step - cycleRequestingAutonomousBike*step)/60 + PackageDelayTime; //TODO: REVIEW THIS
 					departureTime <- current_date;
 					departureCycle <- cycle;
 					served <- true;

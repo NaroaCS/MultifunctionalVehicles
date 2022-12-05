@@ -6,14 +6,14 @@ global {
 	//----------------------Simulation Parameters------------------------
 	
 	//Simulation time step
-	float step <- 15 #sec; //TODO: Change to 2 
+	float step <- 2 #sec; //TODO: Change to 2 
 	
 	//Simulation starting date
 	date starting_date <- date("2021-10-12 05:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
-	date logDate <- date("2022-12-05 14:53:00");
+	date logDate <- date("2022-12-05 18:00:00");
 	
 	date nowDate <- #now;
 	
@@ -68,6 +68,7 @@ global {
     //--------------------------Package Parameters----------------------------
     float maxWaitTimePackage <- 1440 #mn		min: 3#mn max: 1440#mn parameter: "Max Wait Time Package:" category: "Package";
 	float maxDistancePackage_AutonomousBike <- maxWaitTimePackage*PickUpSpeedAutonomousBike #m;
+	int PackageDelayTime <- 2 	min: 0 max: 60 parameter: "Package Assignment Delay Time:" category: "Package"; //Minutes
      
     //--------------------------Demand Parameters-----------------------------
     string cityDemandFolder <- "./../includes/Demand";

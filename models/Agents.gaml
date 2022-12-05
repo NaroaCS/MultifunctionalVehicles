@@ -10,7 +10,7 @@ global {
 	} //TODO: Review this, I think I put it to fix an error
 	
 	//int chargingStationCapacity;
-
+	
 	list<autonomousBike> availableAutonomousBikes(people person , package delivery) {
 		return autonomousBike where (each.availableForRideAB());
 	}
@@ -21,6 +21,58 @@ global {
 		list<autonomousBike> available <- availableAutonomousBikes(person, pack);
 		
 		if empty(available) {
+			return false;
+		} else {
+			if person != nil{ //People demand
+			
+				//Check closest bike
+				autonomousBike b <- available closest_to(person);
+
+				if autonomousBikeClose(person,nil,b){ // If it is close enough
+					ask b { do pickUp(person, nil);}
+					ask person {do ride(b);}
+					return true;
+				} else {
+					return false; // If it is NOT close enough
+				}
+						
+			} else if pack != nil{ //Package demand
+			
+				/* TODO: Move to package states
+				 //Wait for the specified time PackageDelayTime
+				int current_m <- current_date.minute;
+				int current_h <- current_date.hour;	
+				int stop_m <- current_m + PackageDelayTime;
+				
+				write 'Time:' + current_h + ':' + current_m + 'wait until:' + stop_m;
+				
+				int i <- 0;
+					
+				loop while: true {
+					if (current_date.hour >= current_h and current_date.minute >= stop_m){break;}
+					else if (i > 10000){
+						write 'SOS: Stuck in while loop!';
+						break;
+					}
+					i <- i+1;
+				} */
+
+				//Then just select closest bike
+				autonomousBike b <- available closest_to(pack);
+				ask b { do pickUp(nil,pack);}
+				ask pack { do deliver(b);}
+				return true;
+				
+			} else { 
+				write 'Error in request bike'; //Because no one made this request
+				return false;
+			}
+			
+		}
+		
+		
+		//__________________________OLD VERSION__________________________//
+		/*if empty(available) {
 			return false;
 		} else {
 			if person != nil{  
@@ -58,7 +110,7 @@ global {
 			} else {
 				return false;
 			}	
-		} 
+		}*/ 
 	}
 		
 	bool autonomousBikeClose(people person, package delivery, autonomousBike ab){
@@ -187,7 +239,8 @@ species package control: fsm skills: [moving] {
 		autonomousBikeToDeliver <- ab;
 	}
 	
-	bool timeToTravel { return ((current_date.hour = start_h and current_date.minute >= start_min) or (current_date.hour > start_h)) and !(self overlaps target_point); }
+	bool timeToTravel { return ((current_date.hour = start_h and current_date.minute >= (start_min+PackageDelayTime)) or (current_date.hour > start_h and current_date.minute < PackageDelayTime)) and !(self overlaps target_point); }
+	//TODO: Review, I introduced the delays here
 	
 	int register <- 1;
 	
