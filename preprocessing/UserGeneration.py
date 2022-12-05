@@ -14,7 +14,7 @@ import random
 
 import geopandas
 
-df_buildings = geopandas.read_file("../data/buildings/buildings.shp")
+df_buildings = geopandas.read_file("./data/buildings/buildings.shp")
 
 df_buildings["cx"] = df_buildings.geometry.apply(lambda p: p.centroid.x)
 df_buildings["cy"] = df_buildings.geometry.apply(lambda p: p.centroid.y)
@@ -27,11 +27,11 @@ lat_max = np.max(df_buildings["cy"])
 
 # %% IMPORT TRIPS
 
-df_trips = pd.read_csv("../data/201910-bluebikes-tripdata.csv")
+df_trips = pd.read_csv("./data/201910-bluebikes-tripdata.csv")
 
 # DATE FILTER
-start_date = "2019-10-07 00:00:00"
-end_date = "2019-10-08 00:00:00"
+start_date = "2019-10-12 00:00:00"
+end_date = "2019-10-13 00:00:00"
 df_trips = df_trips[df_trips["starttime"].between(start_date, end_date)]
 
 # ROUNDTRIP FILTER
@@ -123,7 +123,7 @@ for i in range(5):
     df_trips["target_time"] = (pd.to_datetime(df_trips["stoptime"]) - start_time).astype("timedelta64[s]")
 
     # df_trips.drop(columns = [])
-    df_trips.to_csv("../data/user_trips_boston.csv", index=False)
+    df_trips.to_csv("./data/user_trips_boston_oct12.csv", index=False)
     #df_trips.to_csv("../data/user_trips_" + str(i) + ".csv", index=False)
 
 # %% PLOT DATA
