@@ -5,7 +5,8 @@ import "./main.gaml"
 global {
 	
 	float distanceInGraph (point origin, point destination) {
-		return origin distance_to destination;	
+		return (origin distance_to destination);
+		//OPTION 2: return (origin distance_to destination using topology(roadNetwork));
 	} //TODO: Review this, I think I put it to fix an error
 	
 	//int chargingStationCapacity;
@@ -63,6 +64,8 @@ global {
 	bool autonomousBikeClose(people person, package delivery, autonomousBike ab){
 		if person !=nil {
 			float d <- distanceInGraph(ab.location,person.location);
+			write 'Max Dist: '+ maxDistancePeople_AutonomousBike;
+			write 'Dist closest bike: '+ d;
 			if d<maxDistancePeople_AutonomousBike { 
 				return true;
 			}else{
@@ -70,6 +73,10 @@ global {
 			}
 		} else if delivery !=nil {
 			float d <- distanceInGraph(ab.location,delivery.location);
+			
+			write 'Max Dist: '+ maxDistancePeople_AutonomousBike;
+			write 'Dist closest bike: '+ d;
+			
 			if d<maxDistancePackage_AutonomousBike { 
 				return true;
 			}else{

@@ -6,10 +6,10 @@ global {
 	//----------------------Simulation Parameters------------------------
 	
 	//Simulation time step
-	float step <- 2 #sec; //TODO: Change to 2 
+	float step <- 15 #sec; //TODO: Change to 2 
 	
 	//Simulation starting date
-	date starting_date <- date("2021-10-12 08:00:00"); 
+	date starting_date <- date("2021-10-12 05:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
