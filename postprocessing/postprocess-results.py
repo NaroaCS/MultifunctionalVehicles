@@ -5,19 +5,19 @@ import glob
 
 #CHANGE folder  
 
-os.chdir("../results/2022-12-06-09.00.00")
+os.chdir("../results/2022-12-06 01.00.00")
 
 
 if True: #Load all csv files in directory and concat just once 
     extension = 'csv'
 
-    # #Bike trips
-    # bike_filenames =[i for i in glob.glob('autonomousBike_trip_event*.{}'.format(extension))]
+    #Bike trips
+    bike_filenames =[i for i in glob.glob('autonomousBike_trip_event*.{}'.format(extension))]
 
-    # bike_df_temp= pd.DataFrame()
-    # bike_df_temp= pd.concat([pd.read_csv(f) for f in bike_filenames], ignore_index=True)
-    # print(bike_df_temp.head())
-    # bike_df_temp.to_csv('bike_concat.csv')
+    bike_df_temp= pd.DataFrame()
+    bike_df_temp= pd.concat([pd.read_csv(f) for f in bike_filenames], ignore_index=True)
+    print(bike_df_temp.head())
+    bike_df_temp.to_csv('bike_concat.csv')
 
     #To check bug
     # for f in bike_filenames:
@@ -41,8 +41,8 @@ if True: #Load all csv files in directory and concat just once
 
 #Read already concat .csv
 #bike_df=pd.read_csv('bike_concat.csv')
-user_df=pd.read_csv('user_concat.csv')
-package_df=pd.read_csv('package_concat.csv')
+#user_df=pd.read_csv('user_concat.csv')
+#package_df=pd.read_csv('package_concat.csv')
 
 if False:
 
@@ -60,12 +60,4 @@ if False:
 
 
 
-#Get the parameter ranges
-
-n_bikes_possible=user_df['Num Bikes'].unique()
-n_bikes_possible.sort()
-print('Num Bikes: ',n_bikes_possible)
-
-wander_speed_possible=user_df['Wandering Speed'].unique()
-wander_speed_possible.sort()
-print('Wandering Speed: ',wander_speed_possible)
+# #
