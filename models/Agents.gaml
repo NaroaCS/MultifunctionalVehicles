@@ -5,8 +5,8 @@ import "./main.gaml"
 global {
 	
 	float distanceInGraph (point origin, point destination) {
-		//return (origin distance_to destination);
-		return (origin distance_to destination using topology(roadNetwork));
+		return (origin distance_to destination);
+		//return (origin distance_to destination using topology(roadNetwork));
 	} //TODO: Review this, I think I put it to fix an error
 	
 	//int chargingStationCapacity;

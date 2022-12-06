@@ -9,11 +9,11 @@ global {
 	float step <- 5 #sec; //TODO: Change to 2 
 	
 	//Simulation starting date
-	date starting_date <- date("2021-10-12 00:00:00"); 
+	date starting_date <- date("2019-10-07 00:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
-	date logDate <- date("2022-12-06 13:00:00");
+	date logDate <- date("2022-12-06 17:00:00");
 	
 	date nowDate <- #now;
 	
@@ -72,7 +72,7 @@ global {
      
     //--------------------------Demand Parameters-----------------------------
     string cityDemandFolder <- "./../includes/Demand";
-    csv_file demand_csv <- csv_file (cityDemandFolder+ "/user_demand_cambridge_oct12.csv",true); 
+    csv_file demand_csv <- csv_file (cityDemandFolder+ "/user_demand_cambridge_oct7.csv",true); 
     csv_file pdemand_csv <- csv_file (cityDemandFolder+ "/fooddeliverytrips_cambridge.csv",true);
        
     //----------------------Map Parameters------------------------
