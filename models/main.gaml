@@ -179,7 +179,7 @@ experiment multifunctionalVehiclesVisual type: gui {
 }
 
 experiment batch_test type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
-	parameter var: numAutonomousBikes among: [200,300,400];
+	parameter var: numAutonomousBikes init: 300;
 	//parameter var: PickUpSpeedAutonomousBike among: [8/3.6,11/3.6,14/3.6];
 	//parameter var: maxBatteryLifeAutonomousBike among: [35000.0,50000.0,65000.0];
 	parameter var: PackageDelayTime among: [0,2,4];

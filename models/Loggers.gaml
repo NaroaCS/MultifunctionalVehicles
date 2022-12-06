@@ -1,7 +1,7 @@
 model Loggers
 import "./main.gaml"
 
-global {
+global { 
 	map<string, string> filenames <- []; //Maps log types to filenames
 	
 	action registerLogFile(string filename) {
@@ -11,12 +11,12 @@ global {
 	action log(string filename, list data, list<string> columns) {
 		if not(filename in filenames.keys) {
 			do registerLogFile(filename);
-			save ["Cycle", "Time", "Num Autonomous Bikes","Autonomous Bikes Battery Life","AB PickUp Speed"] + columns to: filenames[filename] type: "csv" rewrite: false header: false;
+			save ["Cycle", "Time", "NumBikes","Battery","PickUpSpeed",'PackageDelay'] + columns to: filenames[filename] type: "csv" rewrite: false header: false;
 		}
 		
 		//if level <= loggingLevel {
 		if loggingEnabled {
-			save [cycle, string(current_date, "HH:mm:ss"), numAutonomousBikes, maxBatteryLifeAutonomousBike, PickUpSpeedAutonomousBike] + data to: filenames[filename] type: "csv" rewrite: false header: false;
+			save [cycle, string(current_date, "HH:mm:ss"), numAutonomousBikes, maxBatteryLifeAutonomousBike, PickUpSpeedAutonomousBike*3.6, PackageDelayTime] + data to: filenames[filename] type: "csv" rewrite: false header: false;
 		}
 		if  printsEnabled {
 			write [cycle, string(current_date,"HH:mm:ss")] + data;
@@ -55,6 +55,7 @@ global {
 		
 		"------------------------------PACKAGE PARAMETERS------------------------------",
 		"Maximum Wait Time Package [min]: "+string(maxWaitTimePackage/60),
+		"Package Assignment Delay Time  [min]:"+ string(PackageDelayTime),
 		
 		"------------------------------STATION PARAMETERS------------------------------",
 		"Number of Charging Stations: "+string(numChargingStations),
