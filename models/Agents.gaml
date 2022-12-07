@@ -5,18 +5,17 @@ import "./main.gaml"
 global {
 	
 	float distanceInGraph (point origin, point destination) {
-		return (origin distance_to destination);
-		//return (origin distance_to destination using topology(roadNetwork));
-	} //TODO: Review this, I think I put it to fix an error
-	
-	//int chargingStationCapacity;
+		return (origin distance_to destination using topology(roadNetwork));
+	}
 	
 	list<autonomousBike> availableAutonomousBikes(people person , package delivery) {
 		return autonomousBike where (each.availableForRideAB());
 	}
 		
 		
-	bool requestAutonomousBike(people person, package pack, point destination) { 
+	bool requestAutonomousBike(people person, package pack, point destination) {
+	 
+
 
 		list<autonomousBike> available <- availableAutonomousBikes(person, pack);
 		
@@ -25,12 +24,10 @@ global {
 		} else {
 			if person != nil{ //People demand
 			
-				//Check closest bike
-			autonomousBike b <- available closest_to(person); 
-				
-			float d <- b distance_to person using topology(roadNetwork);
-			write 'Max Dist: '+ maxDistancePeople_AutonomousBike;
-			write 'Dist closest bike: '+ d;
+			point personIntersection <- roadNetwork.vertices closest_to(person);
+			autonomousBike b <- autonomousBike closest_to(personIntersection); 
+			float d<- distanceInGraph(personIntersection,b.location);
+			//write 'Distance in graph: ' + d;
 			if d<maxDistancePeople_AutonomousBike {
 					ask b { do pickUp(person, nil);}
 					ask person {do ride(b);}
@@ -116,32 +113,6 @@ global {
 		}*/ 
 	}
 		
-	bool autonomousBikeClose(people person, package delivery, autonomousBike ab){
-		if person !=nil {
-			//float d <- distanceInGraph(ab.location,person.location);
-			float d <- ab distance_to person using topology(roadNetwork);
-			write 'Max Dist: '+ maxDistancePeople_AutonomousBike;
-			write 'Dist closest bike: '+ d;
-			if d<maxDistancePeople_AutonomousBike { 
-				return true;
-			}else{
-				return false ;
-			}
-		} else if delivery !=nil {
-			//float d <- distanceInGraph(ab.location,delivery.location);
-			float d <- ab distance_to delivery using topology(roadNetwork);
-			write 'Max Dist: '+ maxDistancePeople_AutonomousBike;
-			write 'Dist closest bike: '+ d;
-			
-			if d<maxDistancePackage_AutonomousBike { 
-				return true;
-			}else{
-				return false ;
-			}
-		} else {
-			return false;
-		}
-	}
 }
 
 species road {
