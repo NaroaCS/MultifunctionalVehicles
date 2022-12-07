@@ -55,7 +55,6 @@ global {
 		
 		"------------------------------PACKAGE PARAMETERS------------------------------",
 		"Maximum Wait Time Package [min]: "+string(maxWaitTimePackage/60),
-		"Package Assignment Delay Time  [min]:"+ string(PackageDelayTime),
 		
 		"------------------------------STATION PARAMETERS------------------------------",
 		"Number of Charging Stations: "+string(numChargingStations),

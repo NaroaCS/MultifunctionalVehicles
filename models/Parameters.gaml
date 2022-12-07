@@ -68,7 +68,7 @@ global {
     //--------------------------Package Parameters----------------------------
     float maxWaitTimePackage <- 1440 #mn		min: 3#mn max: 1440#mn parameter: "Max Wait Time Package:" category: "Package";
 	float maxDistancePackage_AutonomousBike <- maxWaitTimePackage*PickUpSpeedAutonomousBike #m;
-	int PackageDelayTime <- 2 	min: 0 max: 60 parameter: "Package Assignment Delay Time:" category: "Package"; //Minutes
+	//int PackageDelayTime <- 2 	min: 0 max: 60 parameter: "Package Assignment Delay Time:" category: "Package"; //Minutes
      
     //--------------------------Demand Parameters-----------------------------
     string cityDemandFolder <- "./../includes/Demand";

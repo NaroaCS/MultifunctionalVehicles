@@ -8,12 +8,75 @@ global {
 		return (origin distance_to destination using topology(roadNetwork));
 	}
 	
-	list<autonomousBike> availableAutonomousBikes(people person , package delivery) {
+	/*list<autonomousBike> availableAutonomousBikes(people person , package delivery) {
 		return autonomousBike where (each.availableForRideAB());
+	}*/
+	
+   bool bidForBike(people person, package pack){
+		
+		//Get list of bikes that are available
+		list<autonomousBike> availableBikes <- (autonomousBike where each.availableForRideAB());
+		
+		//If there are no bikes available in the city, return false
+		if empty(availableBikes){
+			return false;
+		}else if person != nil{ //If person request
+		
+			point personIntersection <- roadNetwork.vertices closest_to(person); //Cast position to road node
+			autonomousBike b <- autonomousBike closest_to(personIntersection); //Get closest bike
+			float d<- distanceInGraph(personIntersection,b.location); //Get distance on roadNetwork
+		
+			if d >maxDistancePeople_AutonomousBike{
+				return false;	 //If closest bike is too far, return false
+			}else{
+				float bidValuePerson <- (100-d+person.queueTime); 
+				// Bid value ct is higher for people, its smaller for larger distances, and larger for larger queue times
+				
+				ask b { do receiveBid(person,nil,bidValuePerson);} //Send bid value to bike
+				return true;
+			}
+		}else if pack !=nil{ // If package request
+		
+			point packIntersection <- roadNetwork.vertices closest_to(pack); //Cast position to road node
+			autonomousBike b <- autonomousBike closest_to(packIntersection); //Get closest bike
+			float d<- distanceInGraph(packIntersection,b.location); //Get distance on roadNetwork
+		
+			if d >maxDistancePackage_AutonomousBike{
+				return false;	 //If closest bike is too far, return false
+			}else{
+				float bidValuePackage <- (50-d+pack.queueTime); 
+				// Bid value ct is lower for packages, its smaller for larger distances, and larger for larger queue times
+				
+				ask b { do receiveBid(nil,package,bidValuePackage);} //Send bid value to bike
+				return true;
+			}
+			
+		}else{
+			write 'ERROR in bidForBike caller'; return false;
+		}
+	
+	}
+	
+	bool bikeAssigned(people person, package pack){
+		if person != nil{
+			if person.autonomousBikeToRide !=nil{ 
+				return true;
+			}else{
+				return false;
+			}
+		}else if pack !=nil{ 
+			if pack.autonomousBikeToDeliver !=nil{
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
 	}
 		
 		
-	bool requestAutonomousBike(people person, package pack, point destination) {
+/* 	bool requestAutonomousBike(people person, package pack, point destination) {
 	 
 
 
@@ -38,24 +101,6 @@ global {
 						
 			} else if pack != nil{ //Package demand
 			
-				/* TODO: Move to package states
-				 //Wait for the specified time PackageDelayTime
-				int current_m <- current_date.minute;
-				int current_h <- current_date.hour;	
-				int stop_m <- current_m + PackageDelayTime;
-				
-				write 'Time:' + current_h + ':' + current_m + 'wait until:' + stop_m;
-				
-				int i <- 0;
-					
-				loop while: true {
-					if (current_date.hour >= current_h and current_date.minute >= stop_m){break;}
-					else if (i > 10000){
-						write 'SOS: Stuck in while loop!';
-						break;
-					}
-					i <- i+1;
-				} */
 
 				//Then just select closest bike
 				autonomousBike b <- available closest_to(pack);
@@ -70,48 +115,8 @@ global {
 			
 		}
 		
-		
-		//__________________________OLD VERSION__________________________//
-		/*if empty(available) {
-			return false;
-		} else {
-			if person != nil{  
-				autonomousBike b <- available closest_to(person);
-			
-				if !autonomousBikeClose(person,nil,b) and pack != nil{
-					ask b {
-						do pickUp(nil,pack);
-					}
-					ask pack {
-						do deliver(b);
-					}
-					return true;
-				} else if !autonomousBikeClose(person,nil,b) and pack = nil{
-					return false;
-				} else if autonomousBikeClose(person,nil,b){
-					ask b {
-						do pickUp(person, nil);
-					}
-					ask person {
-						do ride(b);
-					}
-					return true;
-				} 
-			} else if person = nil and pack != nil{
-			
-				autonomousBike b <- available closest_to(pack);
-				ask b {			
-					do pickUp(nil,pack);
-				}
-				ask pack {
-					do deliver(b);
-				}
-				return true;				
-			} else {
-				return false;
-			}	
-		}*/ 
-	}
+
+	}*/
 		
 }
 
@@ -204,6 +209,8 @@ species package control: fsm skills: [moving] {
 	point final_destination; 
     point target; 
     float waitTime;
+    float queueTime;
+    bool bidClear <- False;
         
 	aspect base {
     	color <- color_map[state];
@@ -214,8 +221,20 @@ species package control: fsm skills: [moving] {
 		autonomousBikeToDeliver <- ab;
 	}
 	
-	bool timeToTravel { return ((current_date.hour = start_h and current_date.minute >= (start_min+PackageDelayTime)) or (current_date.hour > start_h and current_date.minute < PackageDelayTime)) and !(self overlaps target_point); }
-	//TODO: Review, I introduced the delays here
+	reflex updateQueueTime{
+		
+		if timeToTravel = True{
+			if (current_date.hour = start_h) {
+				queueTime <- (current_date.minute - start_min);
+			} else if (current_date.hour > start_h){
+				queueTime <- (current_date.hour-start_h)*60 + (60 - start_min);	
+			}
+		}
+		
+	}
+	
+	bool timeToTravel { return ((current_date.hour = start_h and current_date.minute >= (start_min)) or (current_date.hour > start_h)) and !(self overlaps target_point); }
+
 	
 	int register <- 1;
 	
@@ -225,7 +244,7 @@ species package control: fsm skills: [moving] {
     		if register=1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState;}}
     		target <- nil;
     	}
-    	transition to: requestingAutonomousBike when: timeToTravel() {
+    	transition to: bidding when: timeToTravel() {
     		final_destination <- target_point;
     	}
     	exit {
@@ -233,30 +252,50 @@ species package control: fsm skills: [moving] {
 		}
     }
     
-    state requestingAutonomousBike {
-    	
+    state bidding {
     	enter {
+    		bidClear <-False;
     		if register = 1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState; }}    		
-    		if !host.requestAutonomousBike(nil,self,final_destination) {
+    		if !host.bidForBike(nil,self) {
     			register <- 0;
     		} else {
     			register <- 1;
     		}
     	}
-    	transition to: firstmile when: register = 1{		
-    		 target <- (road closest_to(self)).location;
+    	transition to: awaiting_bike_assignation when: register = 1{		
     	}
-    	transition to: retry when: register = 0 {
+    	transition to: retry_bid when: register = 0 {
     	}
     	exit {
     		if register = 1 and packageEventLog {ask logger { do logExitState; }}
 		}
     }
     
-    state retry {
-    	transition to: requestingAutonomousBike{ //TODO: Do we need when: timetotravel=?
-    	}
+    state awaiting_bike_assignation { //TODO: if the bike decides, we need to bid for another one!
+		    enter {
+		    if register = 1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState; }}    
+		    if !host.bikeAssigned(nil,self) {
+		    register <- 0;
+		    } else {
+		    register <- 1;
+		    }
+		    }
+		    transition to: firstmile when: register = 1{
+		    	target <- (road closest_to(self)).location;
+		    }
+		    transition to: wait_bidding when: register = 0 {
+		    }
+		    transition to: bidding when bidClear = True {
+		    }
+		    exit {
+		    if register = 1 and packageEventLog {ask logger { do logExitState; }}
+		}
+   
     }
+
+    
+    state retry_bid {transition to: bidding{ } } // TODO: review if we can simplify these two processes
+	state wait_bidding {transition to: awaiting_bike_reassignation{ }}
 	
 	state firstmile {
 		enter{
@@ -348,6 +387,8 @@ species people control: fsm skills: [moving] {
     point final_destination;
     point target;
     float waitTime;
+    float queueTime;
+    bool bidClear <-False;
     
     aspect base {
     	color <- color_map[state];
@@ -360,8 +401,19 @@ species people control: fsm skills: [moving] {
     	if ab!=nil{
     		autonomousBikeToRide <- ab;
     	}
-    }	
-
+    }
+    	
+	reflex updateQueueTime{
+		
+		if timeToTravel{
+			if (current_date.hour = start_h) {
+				queueTime <- (current_date.minute - start_min);
+			} else if (current_date.hour > start_h){
+				queueTime <- (current_date.hour-start_h)*60 + (60 - start_min);	
+			}
+		}
+		
+	}
     bool timeToTravel { return (current_date.hour = start_h and current_date.minute >= start_min) and !(self overlaps target_point); }
     
     state wandering initial: true {
@@ -377,22 +429,42 @@ species people control: fsm skills: [moving] {
 		}
     }
     
-	state requesting_autonomousBike {
+    state bidForBike {
 		enter {
+			bidClear <- False;
 			if peopleEventLog or peopleTripLog {ask logger { do logEnterState; }} 
 		}
-		transition to: firstmile when: host.requestAutonomousBike(self, nil, final_destination) {
-			target <- (road closest_to(self)).location;
+		transition to: awaiting_bike_assignation when: host.bidForBike(self, nil) {
 		}
 		transition to: wandering {
 			if peopleEventLog {ask logger { do logEvent( "Used another mode, wait too long" ); }}
 			location <- final_destination;
 		}
 		exit {
+			if peopleEventLog {ask logger { do logExitState("Bidding sent"); }}
+		}
+		
+	}
+    
+	state awaiting_bike_assignation { //TODO: if the bike decides, we need to bid for another one!
+		enter {
+			if peopleEventLog or peopleTripLog {ask logger { do logEnterState; }} 
+		}
+		transition to: firstmile when: host.bikeAssigned(self, nil) {
+			target <- (road closest_to(self)).location;
+		}
+		transition to: wait_bidding when: !host.bikeAssigned(self, nil) {
+		}
+		transition to: bidForBike when: bidClear = True{
+			
+		}
+		exit {
 			if peopleEventLog {ask logger { do logExitState("Requested Bike " + myself.autonomousBikeToRide); }}
 		}
 		
 	}
+	
+	state wait_bidding {transition to: awaiting_bike_reassignation{ }}
 	
 	state firstmile {
 		enter{
@@ -479,11 +551,22 @@ species autonomousBike control: fsm skills: [moving] {
 	
 	list<string> rideStates <- ["wandering"]; 
 	bool lowPass <- false;
-
+	
+	
+	float highestBid <- 0;
+	people highestBidderUser;
+	package highestBidderPackage;
+	list<people> personBidders;
+	list<package> packageBidders;
+	
+	int bid_start_h;
+	int bid_start_min;
+	
 	bool availableForRideAB {
 		return (state in rideStates) and self.state="wandering" and !setLowBattery() and rider = nil  and delivery=nil;
 	}
 	
+
 	action pickUp(people person, package pack) { 
 		
 		if person != nil{
@@ -497,6 +580,7 @@ species autonomousBike control: fsm skills: [moving] {
 		}
 	}
 	
+
 	/* ========================================== PRIVATE FUNCTIONS ========================================= */
 	//---------------BATTERY-----------------
 	
@@ -531,6 +615,8 @@ species autonomousBike control: fsm skills: [moving] {
 	bool canMove {
 		return ((target != nil and target != location)) and batteryLife > 0;
 	}
+	
+
 		
 	path moveTowardTarget {
 		if (state="in_use_people" or state="in_use_packages"){return goto(on:roadNetwork, target:target, return_path: true, speed:RidingSpeedAutonomousBike);}
@@ -544,6 +630,38 @@ species autonomousBike control: fsm skills: [moving] {
 		float distanceTraveled <- host.distanceInGraph(travelledPath.source,travelledPath.target);
 		
 		do reduceBattery(distanceTraveled);
+	}
+
+	action receiveBid(people person, package pack, float bidValue){
+		if person != nil{
+			add person to: personBidders;
+		}else if pack != nil{
+			add pack to: packageBidders;
+		}
+		if higestBid = 0 { //First bid
+			bid_start_h <- current_date.h;
+			bid_start_min <- current_date.min;
+		}
+		if bidValue > highestBid { 
+		//If the current bid value is larger than the previous max, we updare it
+			highestBidderUser <- nil;
+			highestBidderPackage <- nil;
+			highestBid <- bidValue;
+			if person !=nil {
+				highestBidderUser <- person;
+			}else if package !=nil{
+				highestBidderPackage <- pack;	
+			}else{
+				write 'Error in receiveBid()';
+			}
+		}
+
+	}
+	
+	reflex endBid(){
+		if (current_date.h = bid_start_h and current_date.min > (bid_start_min + maxBiddingTime)) or (current_date.h > bid_start_h and maxBiddingTime>(60-bid_start_min)){
+		for person in personBidders each.bidClear <-True;
+		for package in packageBidders each.bidClear <- True;}
 	}
 				
 	/* ========================================== STATE MACHINE ========================================= */
