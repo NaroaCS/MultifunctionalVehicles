@@ -26,13 +26,16 @@ global {
 			if person != nil{ //People demand
 			
 				//Check closest bike
-				autonomousBike b <- available closest_to(person);
-
-				if autonomousBikeClose(person,nil,b){ // If it is close enough
+			autonomousBike b <- available closest_to(person); 
+				
+			float d <- b distance_to person using topology(roadNetwork);
+			write 'Max Dist: '+ maxDistancePeople_AutonomousBike;
+			write 'Dist closest bike: '+ d;
+			if d<maxDistancePeople_AutonomousBike {
 					ask b { do pickUp(person, nil);}
 					ask person {do ride(b);}
 					return true;
-				} else {
+			}else {
 					return false; // If it is NOT close enough
 				}
 						
@@ -115,7 +118,8 @@ global {
 		
 	bool autonomousBikeClose(people person, package delivery, autonomousBike ab){
 		if person !=nil {
-			float d <- distanceInGraph(ab.location,person.location);
+			//float d <- distanceInGraph(ab.location,person.location);
+			float d <- ab distance_to person using topology(roadNetwork);
 			write 'Max Dist: '+ maxDistancePeople_AutonomousBike;
 			write 'Dist closest bike: '+ d;
 			if d<maxDistancePeople_AutonomousBike { 
@@ -124,8 +128,8 @@ global {
 				return false ;
 			}
 		} else if delivery !=nil {
-			float d <- distanceInGraph(ab.location,delivery.location);
-			
+			//float d <- distanceInGraph(ab.location,delivery.location);
+			float d <- ab distance_to delivery using topology(roadNetwork);
 			write 'Max Dist: '+ maxDistancePeople_AutonomousBike;
 			write 'Dist closest bike: '+ d;
 			
@@ -262,7 +266,7 @@ species package control: fsm skills: [moving] {
     	
     	enter {
     		if register = 1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState; }}    		
-    		if !host.requestAutonomousBike(person,self,final_destination) {
+    		if !host.requestAutonomousBike(nil,self,final_destination) {
     			register <- 0;
     		} else {
     			register <- 1;
@@ -416,6 +420,7 @@ species people control: fsm skills: [moving] {
 		exit {
 			if peopleEventLog {ask logger { do logExitState("Requested Bike " + myself.autonomousBikeToRide); }}
 		}
+		
 	}
 	
 	state firstmile {
