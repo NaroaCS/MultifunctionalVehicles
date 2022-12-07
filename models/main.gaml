@@ -163,7 +163,7 @@ experiment multifunctionalVehiclesVisual type: gui {
 			species road aspect: base visible:show_road ;
 			species people aspect: base visible:show_people;
 			species chargingStation aspect: base visible:show_chargingStation ;
-			species restaurant aspect:base visible:show_restaurant position:{0,0,-0.001};
+			//species restaurant aspect:base visible:show_restaurant position:{0,0,-0.001};
 			species autonomousBike aspect: realistic visible:show_autonomousBike trace:30 fading: true;
 			species package aspect:base visible:show_package;
 

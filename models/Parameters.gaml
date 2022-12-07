@@ -9,7 +9,7 @@ global {
 	float step <- 5 #sec; //TODO: Change to 2 
 	
 	//Simulation starting date
-	date starting_date <- date("2019-10-07 00:00:00"); 
+	date starting_date <- date("2019-10-07 10:20:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
@@ -23,7 +23,7 @@ global {
 	
 	//----------------------Logging Parameters------------------------
 	bool loggingEnabled <- true parameter: "Logging" category: "Logs";
-	bool printsEnabled <- false parameter: "Printing" category: "Logs";
+	bool printsEnabled <- true parameter: "Printing" category: "Logs";
 	
 	bool autonomousBikeEventLog <-true parameter: "Autonomous Bike Event/Trip Log" category: "Logs";
 	
@@ -38,7 +38,7 @@ global {
 	bool roadsTraveledLog <- false parameter: "Roads Traveled Log" category: "Logs";
 	
 	//-----------------Autonomous Bike Parameters-----------------------
-	int numAutonomousBikes <- 200				min: 0 max: 2000 parameter: "Num Autonomous Bikes:" category: "Bike";
+	int numAutonomousBikes <- 10				min: 0 max: 2000 parameter: "Num Autonomous Bikes:" category: "Bike";
 	float maxBatteryLifeAutonomousBike <- 50000.0 #m	min: 10000#m max: 70000#m parameter: "Autonomous Bike Battery Capacity (m):" category: "Bike"; //battery capacity in m
 	float PickUpSpeedAutonomousBike <-  8/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Pick-up Speed (m/s):" category:  "Bike";
 	float RidingSpeedAutonomousBike <-  PickUpSpeedAutonomousBike min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Riding Speed (m/s):" category:  "Bike";
@@ -72,8 +72,8 @@ global {
      
     //--------------------------Demand Parameters-----------------------------
     string cityDemandFolder <- "./../includes/Demand";
-    csv_file demand_csv <- csv_file (cityDemandFolder+ "/user_demand_cambridge_oct7.csv",true); 
-    csv_file pdemand_csv <- csv_file (cityDemandFolder+ "/fooddeliverytrips_cambridge.csv",true);
+    csv_file demand_csv <- csv_file (cityDemandFolder+ "/user_demand_cambridge_oct7-small.csv",true); 
+    csv_file pdemand_csv <- csv_file (cityDemandFolder+ "/fooddeliverytrips_cambridge-small.csv",true);
        
     //----------------------Map Parameters------------------------
 	
