@@ -5,7 +5,7 @@ import glob
 
 #CHANGE folder  
 
-os.chdir("../results/2022-12-06 05.00.00")
+os.chdir("../results/2022-12-06 04.30.00")
 
 
 if True: #Load all csv files in directory and concat just once 
