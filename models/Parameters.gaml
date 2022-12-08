@@ -1,6 +1,6 @@
 model Parameters 
 
-import "./main.gaml"
+import "./main.gaml" 
 
 global {
 	//----------------------Simulation Parameters------------------------
@@ -43,6 +43,7 @@ global {
 	float PickUpSpeedAutonomousBike <-  8/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Pick-up Speed (m/s):" category:  "Bike";
 	float RidingSpeedAutonomousBike <-  PickUpSpeedAutonomousBike min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Riding Speed (m/s):" category:  "Bike";
 	float minSafeBatteryAutonomousBike <- 0.25*maxBatteryLifeAutonomousBike #m; //Amount of battery at which we seek battery and that is always reserved when charging another bike
+	int maxBiddingTime <- 3 min:0 max:60 parameter: "Maximum bidding time";
 	//float nightSafeBatteryAutonomousBike <- 0.9*maxBatteryLifeAutonomousBike #m; 
 	
 	//----------------------numChargingStationsion Parameters------------------------
@@ -68,8 +69,7 @@ global {
     //--------------------------Package Parameters----------------------------
     float maxWaitTimePackage <- 1440 #mn		min: 3#mn max: 1440#mn parameter: "Max Wait Time Package:" category: "Package";
 	float maxDistancePackage_AutonomousBike <- maxWaitTimePackage*PickUpSpeedAutonomousBike #m;
-	//int PackageDelayTime <- 2 	min: 0 max: 60 parameter: "Package Assignment Delay Time:" category: "Package"; //Minutes
-     
+	 
     //--------------------------Demand Parameters-----------------------------
     string cityDemandFolder <- "./../includes/Demand";
     csv_file demand_csv <- csv_file (cityDemandFolder+ "/user_demand_cambridge_oct7.csv",true); 

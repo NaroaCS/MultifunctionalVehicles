@@ -1,5 +1,6 @@
-model Loggers 
-import "./main.gaml"
+model Loggers
+
+import "./main.gaml"  //TODO: Add bid variables !!!
 
 global { 
 	map<string, string> filenames <- []; //Maps log types to filenames
@@ -11,12 +12,12 @@ global {
 	action log(string filename, list data, list<string> columns) {
 		if not(filename in filenames.keys) {
 			do registerLogFile(filename);
-			save ["Cycle", "Time", "NumBikes","Battery","PickUpSpeed",'PackageDelay','Agent'] + columns to: filenames[filename] type: "csv" rewrite: false header: false;
+			save ["Cycle", "Time", "NumBikes","Battery","PickUpSpeed",'Agent'] + columns to: filenames[filename] type: "csv" rewrite: false header: false;
 		}
 		
 		//if level <= loggingLevel {
 		if loggingEnabled {
-			save [cycle, string(current_date, "HH:mm:ss"), numAutonomousBikes, maxBatteryLifeAutonomousBike, PickUpSpeedAutonomousBike*3.6, PackageDelayTime] + data to: filenames[filename] type: "csv" rewrite: false header: false;
+			save [cycle, string(current_date, "HH:mm:ss"), numAutonomousBikes, maxBatteryLifeAutonomousBike, PickUpSpeedAutonomousBike*3.6] + data to: filenames[filename] type: "csv" rewrite: false header: false;
 		}
 		if  printsEnabled {
 			write [cycle, string(current_date,"HH:mm:ss")] + data;
@@ -318,7 +319,7 @@ species packageLogger parent: Logger mirrors: package {
 					served <- false;
 				}
 				match "delivering_autonomousBike" {
-					waitTime <- (cycle*step - cycleRequestingAutonomousBike*step)/60 + PackageDelayTime; //TODO: REVIEW THIS
+					waitTime <- (cycle*step - cycleRequestingAutonomousBike*step)/60; 
 					departureTime <- current_date;
 					departureCycle <- cycle;
 					served <- true;

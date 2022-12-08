@@ -1,6 +1,6 @@
 model main 
 
-import "./Agents.gaml"
+import "./Agents.gaml" 
 import "./Loggers.gaml"
 import "./Parameters.gaml"
 
@@ -33,54 +33,6 @@ global {
 			{location <- to_GAMA_CRS({lon,lat},"EPSG:4326").location;}
 					   
 		// -------------------------------------Location of the charging stations----------------------------------------   
-		//-----------------------------------------------Before----------------------------------------------------------
-		
-		/*list<int> tmpDist; //TODO: We might reactivate this to make the number of stations more reasonable.
-	    		
-		loop vertex over: roadNetwork.vertices {
-			create intersection {
-				id <- roadNetwork.vertices index_of vertex;
-				location <- point(vertex);
-			}
-		}
-
-		//K-Means		
-		//Create a list of x,y coordinate for each intersection
-		list<list> instances <- intersection collect ([each.location.x, each.location.y]);
-
-		//from the vertices list, create k groups  with the Kmeans algorithm (https://en.wikipedia.org/wiki/K-means_clustering)
-		list<list<int>> kmeansClusters <- list<list<int>>(kmeans(instances, numChargingStations));
-
-		//from clustered vertices to centroids locations
-		int groupIndex <- 0;
-		list<point> coordinatesCentroids <- [];
-		loop cluster over: kmeansClusters {
-			groupIndex <- groupIndex + 1;
-			list<point> coordinatesVertices <- [];
-			loop i over: cluster {
-				add point (roadNetwork.vertices[i]) to: coordinatesVertices; 
-			}
-			add mean(coordinatesVertices) to: coordinatesCentroids;
-		}    
-	    
-		loop centroid from:0 to:length(coordinatesCentroids)-1 {
-			tmpDist <- [];
-			loop vertices from:0 to:length(roadNetwork.vertices)-1{
-				add (point(roadNetwork.vertices[vertices]) distance_to coordinatesCentroids[centroid]) to: tmpDist;
-			}	
-			loop vertices from:0 to: length(tmpDist)-1{
-				if(min(tmpDist)=tmpDist[vertices]){
-					add vertices to: chargingStationLocation;
-					break;
-				}
-			}	
-		}
-	    
-	    loop i from: 0 to: length(chargingStationLocation) - 1 {
-			create chargingStation{
-				location <- point(roadNetwork.vertices[chargingStationLocation[i]]);
-			}
-		}*/
 		
 		//--------------------------------------After--------------------------------------------------
 		
@@ -158,11 +110,11 @@ experiment multifunctionalVehiclesVisual type: gui {
 	parameter var: numAutonomousBikes init: numAutonomousBikes;
 	float minimum_cycle_duration<-0.01;
     output {
-		display multifunctionalVehiclesVisual type:opengl background: #black draw_env: false{	 
+		display multifunctionalVehiclesVisual type:opengl background: #black axes: false{	 
 			species building aspect: type visible:show_building position:{0,0,-0.001};
 			species road aspect: base visible:show_road ;
 			species people aspect: base visible:show_people;
-			species chargingStation aspect: base visible:show_chargingStation ;
+			//species chargingStation aspect: base visible:show_chargingStation ;
 			species restaurant aspect:base visible:show_restaurant position:{0,0,-0.001};
 			species autonomousBike aspect: realistic visible:show_autonomousBike trace:30 fading: true;
 			species package aspect:base visible:show_package;
@@ -180,13 +132,4 @@ experiment multifunctionalVehiclesVisual type: gui {
 
 experiment batch_test type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
 	parameter var: numAutonomousBikes among:[100,200,300];
-	//parameter var: PickUpSpeedAutonomousBike among: [8/3.6,11/3.6,14/3.6];
-	//parameter var: maxBatteryLifeAutonomousBike among: [35000.0,50000.0,65000.0];
-	parameter var: PackageDelayTime among: [0,2,4];
 }
-
-/*experiment autonomousbike_batch_experiment type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
-	parameter var: numAutonomousBikes among: [30,40,50,60,70,80,90,100,120,130,140,150,160,170,180,190,200];
-	parameter var: PickUpSpeedAutonomousBike among: [8/3.6,11/3.6,14/3.6];
-	parameter var: maxBatteryLifeAutonomousBike among: [35000.0,50000.0,65000.0];
-}*/
