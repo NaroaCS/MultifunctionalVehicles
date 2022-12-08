@@ -94,7 +94,7 @@ global {
 			string start_min_str <- string(start_hour,'mm');
 			start_min <- int(start_min_str);
 			
-			write "Start "+start_point+ " " +start_h+ ":"+ start_min;
+			//write "Start "+start_point+ " " +start_h+ ":"+ start_min;
 			
 			}
 						

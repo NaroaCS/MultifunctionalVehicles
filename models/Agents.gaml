@@ -212,8 +212,10 @@ species package control: fsm skills: [moving] {
     
     state bidding {
     	enter {
+    		if register = 1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState; }} 
     		bidClear <-0;
-    		if register = 1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState; }}    		
+    		target <- (road closest_to(self)).location;
+   		
     		if !host.bidForBike(nil,self) {
     			register <- 0;
     		} else {
@@ -390,8 +392,9 @@ species people control: fsm skills: [moving] {
     
     state bidForBike {
 		enter {
-			bidClear <- 0;
 			if peopleEventLog or peopleTripLog {ask logger { do logEnterState; }} 
+			bidClear <- 0;
+			target <- (road closest_to(self)).location;
 		}
 		transition to: awaiting_bike_assignation when: host.bidForBike(self, nil) {
 		}
@@ -511,7 +514,7 @@ species autonomousBike control: fsm skills: [moving] {
 	list<string> rideStates <- ["wandering"]; 
 	bool lowPass <- false;
 	
-	
+	bool biddingStart <- false;
 	float highestBid <- -10000;
 	people highestBidderUser;
 	package highestBidderPackage;
@@ -587,6 +590,7 @@ species autonomousBike control: fsm skills: [moving] {
 
 	action receiveBid(people person, package pack, float bidValue){
 		write 'Bike ' + string(self) +'received bid from:'+ person + '/'+ pack +' of value: '+ bidValue ;
+		biddingStart <- true;
 		if person != nil{
 			add person to: personBidders;
 		}else if pack != nil{
@@ -612,8 +616,7 @@ species autonomousBike control: fsm skills: [moving] {
 
 	}
 	
-	reflex endBid{
-		if (current_date.hour = bid_start_h and current_date.minute > (bid_start_min + maxBiddingTime)) or (current_date.hour > bid_start_h and maxBiddingTime>(60-bid_start_min)){
+	action endBidProcess{
 			loop i over: personBidders{	
 				i.bidClear <- 1;
 			}
@@ -630,9 +633,7 @@ species autonomousBike control: fsm skills: [moving] {
 				write 'Highest bidder for bike '+ string(self)+' package '+ highestBidderPackage;
 			}else{
 				write 'Error: Confusion with highest bidder';
-				write 'Bike '+ string(self) + 'higgest bidder pack/person'+ highestBidderPackage + '/'+ highestBidderUser;
 			}
-		}
 	}
 				
 	/* ========================================== STATE MACHINE ========================================= */
@@ -644,10 +645,46 @@ species autonomousBike control: fsm skills: [moving] {
 			}
 			target <- nil;
 		}
+		transition to: bidding when: biddingStart= true{} // When it receives bid
+		transition to: low_battery when: setLowBattery() {}
+		exit {
+			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
+		}
+	}
+	
+	state bidding {
+		enter{
+			if autonomousBikeEventLog {
+				ask eventLogger { do logEnterState; }
+				ask travelLogger { do logRoads(0.0);}
+			}
+			
+		} //Wait for bidding time to end
+		transition to: endBid when: (highestBid != -10000) and (current_date.hour = bid_start_h and current_date.minute > (bid_start_min + maxBiddingTime)) or (current_date.hour > bid_start_h and maxBiddingTime>(60-bid_start_min)){}
+		exit {
+			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
+		}
+	}
+	state endBid {
+		enter{	 
+			if autonomousBikeEventLog {
+				ask eventLogger { do logEnterState; }
+				ask travelLogger { do logRoads(0.0);}
+			}
+			do endBidProcess(); //Assign winner and get the rest of packages and people out of the bid waiting
+			
+			//Clear all the variables for next round
+			biddingStart <- false;
+			highestBid <- -10000;
+			highestBidderUser<- nil;
+			highestBidderPackage <- nil;
+			personBidders <- [];
+			packageBidders <- [];
+			bid_start_h <- nil;
+			bid_start_min <- nil;
+		}
 		transition to: picking_up_people when: rider != nil and activity = 1{}
 		transition to: picking_up_packages when: delivery != nil and activity = 0{}
-		transition to: low_battery when: setLowBattery() {}
-		//transition to: night_recharging when: setNightChargingTime() {nightorigin <- self.location;}
 		exit {
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}
@@ -656,7 +693,10 @@ species autonomousBike control: fsm skills: [moving] {
 	state low_battery {
 		enter{
 			target <- (chargingStation closest_to(self)).location; 
-			distanceTraveledBike <- target distance_to location;
+			
+			point target_intersection <- roadNetwork.vertices closest_to(target);
+			distanceTraveledBike <- host.distanceInGraph(target_intersection,location);
+			
 			if autonomousBikeEventLog {
 				ask eventLogger { do logEnterState(myself.state); }
 				ask travelLogger { do logRoads(myself.distanceTraveledBike);}
@@ -690,7 +730,10 @@ species autonomousBike control: fsm skills: [moving] {
 	state picking_up_people {
 			enter {
 				target <- rider.target;
-				distanceTraveledBike <- target distance_to location;
+			
+				point target_intersection <- roadNetwork.vertices closest_to(target);
+				distanceTraveledBike <- host.distanceInGraph(target_intersection,location);
+				
 				if autonomousBikeEventLog {
 					ask eventLogger { do logEnterState("Picking up " + myself.rider); }
 					ask travelLogger { do logRoads(myself.distanceTraveledBike);}
@@ -705,7 +748,10 @@ species autonomousBike control: fsm skills: [moving] {
 	state picking_up_packages {
 			enter {
 				target <- delivery.target; 
-				distanceTraveledBike <- target distance_to location;
+			
+				point target_intersection <- roadNetwork.vertices closest_to(target);
+				distanceTraveledBike <- host.distanceInGraph(target_intersection,location);
+				
 				if autonomousBikeEventLog {
 					ask eventLogger { do logEnterState("Picking up " + myself.delivery); }
 					ask travelLogger { do logRoads(myself.distanceTraveledBike);}
@@ -720,7 +766,10 @@ species autonomousBike control: fsm skills: [moving] {
 	state in_use_people {
 		enter {
 			target <- (road closest_to rider.final_destination).location;
-			distanceTraveledBike <- target distance_to location;
+			
+			point target_intersection <- roadNetwork.vertices closest_to(target);
+			distanceTraveledBike <- host.distanceInGraph(target_intersection,location);
+
 			if autonomousBikeEventLog {
 				ask eventLogger { do logEnterState("In Use " + myself.rider); }
 				ask travelLogger { do logRoads(myself.distanceTraveledBike);}
@@ -737,8 +786,11 @@ species autonomousBike control: fsm skills: [moving] {
 	state in_use_packages {
 		enter {
 			target <- (road closest_to delivery.final_destination).location;  
-			distanceTraveledBike <- target distance_to location;
-			if autonomousBikeEventLog {
+			
+		point target_intersection <- roadNetwork.vertices closest_to(target);
+		distanceTraveledBike <- host.distanceInGraph(target_intersection,location);
+		
+		if autonomousBikeEventLog {
 				ask eventLogger { do logEnterState("In Use " + myself.delivery); }
 				ask travelLogger { do logRoads(myself.distanceTraveledBike);}
 			}
