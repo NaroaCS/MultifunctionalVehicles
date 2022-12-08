@@ -23,7 +23,7 @@ global {
 		}else if person != nil{ //If person request
 		
 			point personIntersection <- roadNetwork.vertices closest_to(person); //Cast position to road node
-			autonomousBike b <- autonomousBike closest_to(personIntersection); //Get closest bike
+			autonomousBike b <- availableBikes closest_to(personIntersection); //Get closest bike
 			float d<- distanceInGraph(personIntersection,b.location); //Get distance on roadNetwork
 		
 			if d >maxDistancePeople_AutonomousBike{
@@ -38,7 +38,7 @@ global {
 		}else if pack !=nil{ // If package request
 		
 			point packIntersection <- roadNetwork.vertices closest_to(pack); //Cast position to road node
-			autonomousBike b <- autonomousBike closest_to(packIntersection); //Get closest bike
+			autonomousBike b <- availableBikes closest_to(packIntersection); //Get closest bike
 			float d<- distanceInGraph(packIntersection,b.location); //Get distance on roadNetwork
 		
 			if d >maxDistancePackage_AutonomousBike{
@@ -240,12 +240,13 @@ species package control: fsm skills: [moving] {
     			register <-1;
     		}
     	}
-	    transition to: firstmile when: register = 1{
+	    transition to: firstmile when: host.bikeAssigned(nil,self){ //register = 1{
 	    	target <- (road closest_to(self)).location;
 	    }
-	    transition to: wait_bidding when: register = 0 {
-	    }
+	    /*transition to: wait_bidding when: register = 0 {
+	    }*/
 	    transition to: bidding when: bidClear = 1 {
+	    	register <-0;
 	    	write string(self)+ 'lost bid, will bid again';
 	    }
 	    exit {
@@ -256,7 +257,7 @@ species package control: fsm skills: [moving] {
 
     
     state retry_bid {transition to: bidding{ } } // TODO: review if we can simplify these two processes
-	state wait_bidding {transition to: awaiting_bike_assignation{ }}
+	//state wait_bidding {transition to: awaiting_bike_assignation{ }}
 	
 	state firstmile {
 		enter{
@@ -351,6 +352,7 @@ species people control: fsm skills: [moving] {
     int queueTime;
     int bidClear;
     
+    int register <-0;
     aspect base {
     	color <- color_map[state];
     	draw circle(10) color: color border: #black;
@@ -382,7 +384,7 @@ species people control: fsm skills: [moving] {
     		if peopleEventLog or peopleTripLog {ask logger { do logEnterState; }}
     		target <- nil;
     	}
-    	transition to: bidForBike when: timeToTravel() {
+    	transition to: bidding when: timeToTravel() {
        		final_destination <- target_point;
     	}
     	exit {
@@ -390,20 +392,21 @@ species people control: fsm skills: [moving] {
 		}
     }
     
-    state bidForBike {
+    state bidding {
 		enter {
 			if peopleEventLog or peopleTripLog {ask logger { do logEnterState; }} 
 			bidClear <- 0;
 			target <- (road closest_to(self)).location;
+			bool r <- host.bidForBike(self,nil); //TODO: Review, not sure if it was called otherwise
 		}
-		transition to: awaiting_bike_assignation when: host.bidForBike(self, nil) {
+		transition to: awaiting_bike_assignation when: r = true {
 		}
 		transition to: wandering {
 			if peopleEventLog {ask logger { do logEvent( "Used another mode, wait too long" ); }}
 			location <- final_destination;
 		}
 		exit {
-			if peopleEventLog {ask logger { do logExitState("Bidding sent"); }}
+			if peopleEventLog {ask logger { do logExitState; }}
 		}
 		
 	}
@@ -415,18 +418,20 @@ species people control: fsm skills: [moving] {
 		transition to: firstmile when: host.bikeAssigned(self, nil) {
 			target <- (road closest_to(self)).location;
 		}
-		transition to: wait_bidding when: !host.bikeAssigned(self, nil) {
-		}
-		transition to: bidForBike when: bidClear = 1 {
+		/*transition to: wait_bidding when: !host.bikeAssigned(self, nil) {
+		}*/
+		transition to: bidding when: bidClear = 1 {
 			write string(self)+ 'lost bid, will bid again';
+			
 		}
 		exit {
-			if peopleEventLog {ask logger { do logExitState("Requested Bike " + myself.autonomousBikeToRide); }}
+			//if peopleEventLog {ask logger { do logExitState("Requested Bike " + myself.autonomousBikeToRide); }}
+			if peopleEventLog { ask logger {do logExitState;}}
 		}
 		
 	}
 	
-	state wait_bidding {transition to: awaiting_bike_assignation{ }}
+	//state wait_bidding {transition to: awaiting_bike_assignation{ }}
 	
 	state firstmile {
 		enter{
@@ -515,7 +520,7 @@ species autonomousBike control: fsm skills: [moving] {
 	bool lowPass <- false;
 	
 	bool biddingStart <- false;
-	float highestBid <- -10000;
+	float highestBid <- -100000.00;
 	people highestBidderUser;
 	package highestBidderPackage;
 	list<people> personBidders;
@@ -596,7 +601,7 @@ species autonomousBike control: fsm skills: [moving] {
 		}else if pack != nil{
 			add pack to: packageBidders;
 		}
-		if highestBid = -10000 { //First bid
+		if highestBid = -100000.00{ //First bid
 			bid_start_h <- current_date.hour;
 			bid_start_min <- current_date.minute;
 		}
@@ -660,7 +665,7 @@ species autonomousBike control: fsm skills: [moving] {
 			}
 			
 		} //Wait for bidding time to end
-		transition to: endBid when: (highestBid != -10000) and (current_date.hour = bid_start_h and current_date.minute > (bid_start_min + maxBiddingTime)) or (current_date.hour > bid_start_h and maxBiddingTime>(60-bid_start_min)){}
+		transition to: endBid when: (highestBid != -100000.00) and (current_date.hour = bid_start_h and current_date.minute > (bid_start_min + maxBiddingTime)) or (current_date.hour > bid_start_h and maxBiddingTime>(60-bid_start_min)){}
 		exit {
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}
@@ -675,7 +680,7 @@ species autonomousBike control: fsm skills: [moving] {
 			
 			//Clear all the variables for next round
 			biddingStart <- false;
-			highestBid <- -10000;
+			highestBid <- -100000.00;
 			highestBidderUser<- nil;
 			highestBidderPackage <- nil;
 			personBidders <- [];
