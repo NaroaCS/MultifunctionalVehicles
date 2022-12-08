@@ -74,6 +74,7 @@ global {
 			return false;
 		}
 	}
+	
 		
 		
 /* 	bool requestAutonomousBike(people person, package pack, point destination) {
@@ -269,29 +270,29 @@ species package control: fsm skills: [moving] {
     	exit {
     		if register = 1 and packageEventLog {ask logger { do logExitState; }}
 		}
-    }
-    
-    state awaiting_bike_assignation { //TODO: if the bike decides, we need to bid for another one!
-		    enter {
-		    if register = 1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState; }}    
-		    if !host.bikeAssigned(nil,self) {
-		    register <- 0;
-		    } else {
-		    register <- 1;
-		    }
-		    }
-		    transition to: firstmile when: register = 1{
-		    	target <- (road closest_to(self)).location;
-		    }
-		    transition to: wait_bidding when: register = 0 {
-		    }
-		    transition to: bidding when bidClear = True {
-		    }
-		    exit {
-		    if register = 1 and packageEventLog {ask logger { do logExitState; }}
+		
+	}
+    state awaiting_bike_assignation{
+    	enter{
+    		if register = 1 and (packageEventLog or packageTripLog){ask logger {do logEnterState;}}
+    		if !host.bikeAssigned(nil,self){
+    			register <-0;
+    		}else{
+    			register <-1;
+    		}
+    	}
+	    transition to: firstmile when: register = 1{
+	    	target <- (road closest_to(self)).location;
+	    }
+	    transition to: wait_bidding when: register = 0 {
+	    }
+	    transition to: bidding when: bidClear = True {
+	    }
+	    exit {
+	    if register = 1 and packageEventLog {ask logger { do logExitState; }}
 		}
    
-    }
+   }
 
     
     state retry_bid {transition to: bidding{ } } // TODO: review if we can simplify these two processes
@@ -658,10 +659,15 @@ species autonomousBike control: fsm skills: [moving] {
 
 	}
 	
-	reflex endBid(){
+	reflex endBid{
 		if (current_date.h = bid_start_h and current_date.min > (bid_start_min + maxBiddingTime)) or (current_date.h > bid_start_h and maxBiddingTime>(60-bid_start_min)){
-		for person in personBidders each.bidClear <-True;
-		for package in packageBidders each.bidClear <- True;}
+			loop i over: personBidders{	
+				i.bidClear <- True;
+			}
+			loop j over: packageBidders{
+				j.bidClear <- True;
+			}	
+		}
 	}
 				
 	/* ========================================== STATE MACHINE ========================================= */
@@ -726,8 +732,7 @@ species autonomousBike control: fsm skills: [moving] {
 		exit {
 			if stationChargeLogs{ask eventLogger { do logExitState("Charged at " + (chargingStation closest_to myself)); }}
 			ask chargingStation closest_to(self) {
-				autonomousBikesToCharge <- autonomousBikesToCharge - myself;
-			}
+				autonomousBikesToCharge <- autonomousBikesToCharge - myself;}
 		}
 	}
 	
@@ -830,3 +835,5 @@ species autonomousBike control: fsm skills: [moving] {
 		}
 	}
 }
+
+

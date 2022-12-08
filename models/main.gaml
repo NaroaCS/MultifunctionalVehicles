@@ -1,4 +1,4 @@
-model main
+model main 
 
 import "./Agents.gaml"
 import "./Loggers.gaml"

@@ -1,4 +1,4 @@
-model Loggers
+model Loggers 
 import "./main.gaml"
 
 global { 

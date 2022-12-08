@@ -1,4 +1,4 @@
-model Parameters
+model Parameters 
 
 import "./main.gaml"
 
