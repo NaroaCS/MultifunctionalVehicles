@@ -82,7 +82,7 @@ global {
 		}
 }
 
-// Genérico
+// Generic
 species Logger {
 	
 	action logPredicate virtual: true type: bool;

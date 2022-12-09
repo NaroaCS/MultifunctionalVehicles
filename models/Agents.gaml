@@ -194,19 +194,17 @@ species package control: fsm skills: [moving] {
 	bool timeToTravel { return ((current_date.hour = start_h and current_date.minute >= (start_min)) or (current_date.hour > start_h)) and !(self overlaps target_point); }
 
 	
-	int register <- 1;
-	
-	state generated initial: true {
+	state wandering initial: true {
     	
     	enter {
-    		if register=1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState;}}
+    		if (packageEventLog or packageTripLog) {ask logger { do logEnterState;}}
     		target <- nil;
     	}
     	transition to: bidding when: timeToTravel() {
     		final_destination <- target_point;
     	}
     	exit {
-			if register=1 and (packageEventLog) {ask logger { do logExitState; }}
+			if (packageEventLog) {ask logger { do logExitState; }}
 		}
     }
     
@@ -220,54 +218,21 @@ species package control: fsm skills: [moving] {
     	}
     	transition to: awaiting_bike_assignation when: host.bidForBike(nil,self){		
     	}
+    	transition to: wandering when: !host.bidForBike(nil,self) {
+			if peopleEventLog {ask logger { do logEvent( "Package not delivered" ); }}
+			location <- final_destination;
+		}
     	exit {
     		if packageEventLog {ask logger { do logExitState; }}
 		}
-    	
-    	/*enter {
-    		if register = 1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState; }} 
-    		bidClear <-0;
-    		target <- (road closest_to(self)).location;
-   		
-    		if !host.bidForBike(nil,self) {
-    			register <- 0;
-    		} else {
-    			register <- 1;
-    		}
-    	}
-    	transition to: awaiting_bike_assignation when: register = 1{		
-    	}
-    	transition to: retry_bid when: register = 0 {
-    	}
-    	exit {
-    		if register = 1 and packageEventLog {ask logger { do logExitState; }}
-		}*/
 		
 	}
     state awaiting_bike_assignation{
-    	/*enter{
-    		if register = 1 and (packageEventLog or packageTripLog){ask logger {do logEnterState;}}
-    		if !host.bikeAssigned(nil,self){
-    			register <-0;
-    		}else{
-    			register <-1;
-    		}
-    	}
-	    transition to: firstmile when: host.bikeAssigned(nil,self){ //register = 1{
-	    	target <- (road closest_to(self)).location;
-	    }
-	    transition to: bidding when: bidClear = 1 {
-	    	register <-0;
-	    	write string(self)+ 'lost bid, will bid again';
-	    }
-	    exit {
-	    if register = 1 and packageEventLog {ask logger { do logExitState; }}
-		}*/
 		
 		enter{
     		if (packageEventLog or packageTripLog){ask logger {do logEnterState;}}
     	}
-	    transition to: firstmile when: host.bikeAssigned(nil,self){ //register = 1{
+	    transition to: firstmile when: host.bikeAssigned(nil,self){ 
 	    	target <- (road closest_to(self)).location;
 	    }
 	    transition to: bidding when: bidClear = 1 {
@@ -279,10 +244,6 @@ species package control: fsm skills: [moving] {
    
    }
 
-    
-    state retry_bid {transition to: bidding{ } } // TODO: review if we can simplify these two processes
-	//state wait_bidding {transition to: awaiting_bike_assignation{ }}
-	
 	state firstmile {
 		enter{
 			if packageEventLog or packageTripLog {ask logger{ do logEnterState;}}
@@ -425,7 +386,7 @@ species people control: fsm skills: [moving] {
 		}
 		transition to: awaiting_bike_assignation when: host.bidForBike(self,nil) {
 		}
-		transition to: wandering {
+		transition to: wandering when: !host.bidForBike(self,nil) {
 			if peopleEventLog {ask logger { do logEvent( "Used another mode, wait too long" ); }}
 			location <- final_destination;
 		}
@@ -442,8 +403,6 @@ species people control: fsm skills: [moving] {
 		transition to: firstmile when: host.bikeAssigned(self, nil) {
 			target <- (road closest_to(self)).location;
 		}
-		/*transition to: wait_bidding when: !host.bikeAssigned(self, nil) {
-		}*/
 		transition to: bidding when: bidClear = 1 {
 			write string(self)+ 'lost bid, will bid again';
 			
@@ -454,8 +413,7 @@ species people control: fsm skills: [moving] {
 		}
 		
 	}
-	
-	//state wait_bidding {transition to: awaiting_bike_assignation{ }}
+
 	
 	state firstmile {
 		enter{

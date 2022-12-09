@@ -9,7 +9,7 @@ global {
 	float step <- 5 #sec; //TODO: Change to 2 
 	
 	//Simulation starting date
-	date starting_date <- date("2019-10-07 05:00:00"); 
+	date starting_date <- date("2019-10-07 00:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
@@ -59,15 +59,15 @@ global {
 	float V2IChargingRate <- maxBatteryLifeAutonomousBike/(111) #m/#s;  // 111 s battery swapping -> average of the two reported by Fei-Hui Huang 2019 Understanding user acceptancd of battery swapping service of sustainable transport
 		
 	//--------------------------People Parameters----------------------------
-	int numPeople <- 250 				min: 0 max: 1000 parameter: "Num People:" category: "Initial";
-	float maxWaitTimePeople <- 60 #mn		min: 3#mn max: 60#mn parameter: "Max Wait Time People:" category: "People";
+	//int numPeople <- 250 				min: 0 max: 1000 parameter: "Num People:" category: "Initial";
+	float maxWaitTimePeople <- 30 #mn		min: 3#mn max: 60#mn parameter: "Max Wait Time People:" category: "People";
 	float maxWalkTimePeople <- 10 #mn  min: 1 #mn  max: 15 #mn parameter: "Max Walking Time People:" category: "People";
 	float maxDistancePeople_AutonomousBike <- maxWaitTimePeople*PickUpSpeedAutonomousBike #m; //The maxWaitTime is translated into a max radius taking into account the speed of the bikes
     float peopleSpeed <- 5/3.6 #m/#s	min: 1/3.6 #m/#s max: 10/3.6 #m/#s parameter: "People Speed (m/s):" category: "People";
    	float maxDistancePeople_DocklessBike <- maxWalkTimePeople*peopleSpeed #m; 
     
     //--------------------------Package Parameters----------------------------
-    float maxWaitTimePackage <- 1440 #mn		min: 3#mn max: 1440#mn parameter: "Max Wait Time Package:" category: "Package";
+    float maxWaitTimePackage <- 60 #mn		min: 3#mn max: 1440#mn parameter: "Max Wait Time Package:" category: "Package";
 	float maxDistancePackage_AutonomousBike <- maxWaitTimePackage*PickUpSpeedAutonomousBike #m;
 	 
     //--------------------------Demand Parameters-----------------------------
