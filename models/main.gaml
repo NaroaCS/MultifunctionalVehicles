@@ -54,7 +54,7 @@ global {
 		}
 	    	    
 		// -------------------------------------------The Packages -----------------------------------------
-		create package from: pdemand_csv with:
+		if packagesEnabled{create package from: pdemand_csv with:
 		[start_hour::date(get("start_time")),
 				start_lat::float(get("start_latitude")),
 				start_lon::float(get("start_longitude")),
@@ -73,10 +73,10 @@ global {
 			}
 			string start_min_str <- string(start_hour,'mm');
 			start_min <- int(start_min_str);
-		}
+		}}
 		
 		// -------------------------------------------The People -----------------------------------------
-	    create people from: demand_csv with:
+	    if peopleEnabled{create people from: demand_csv with:
 		[start_hour::date(get("starttime")), //'yyyy-MM-dd hh:mm:s'
 				start_lat::float(get("start_lat")),
 				start_lon::float(get("start_lon")),
@@ -96,7 +96,7 @@ global {
 			
 			//write "Start "+start_point+ " " +start_h+ ":"+ start_min;
 			
-			}
+			}}
 						
 			write "FINISH INITIALIZATION";
     }
@@ -114,7 +114,7 @@ experiment multifunctionalVehiclesVisual type: gui {
 			species building aspect: type visible:show_building position:{0,0,-0.001};
 			species road aspect: base visible:show_road ;
 			species people aspect: base visible:show_people;
-			//species chargingStation aspect: base visible:show_chargingStation ;
+			species chargingStation aspect: base visible:show_chargingStation ;
 			species restaurant aspect:base visible:show_restaurant position:{0,0,-0.001};
 			species autonomousBike aspect: realistic visible:show_autonomousBike trace:30 fading: true;
 			species package aspect:base visible:show_package;

@@ -21,6 +21,12 @@ global {
 	int numberOfDays <- 1; //WARNING: If >1 set numberOfHours to 24h
 	int numberOfHours <- 24; //WARNING: If one day, we can also specify the number of hours, otherwise set 24h
 	
+		
+	//----------------------Simulation modes------------------------
+	bool peopleEnabled <- true;
+	bool packagesEnabled <- true;
+	bool biddingEnabled <- true;
+	
 	//----------------------Logging Parameters------------------------
 	bool loggingEnabled <- true parameter: "Logging" category: "Logs";
 	bool printsEnabled <- true parameter: "Printing" category: "Logs";
@@ -83,6 +89,7 @@ global {
 	 
     //--------------------------Demand Parameters-----------------------------
     string cityDemandFolder <- "./../includes/Demand";
+
     csv_file demand_csv <- csv_file (cityDemandFolder+ "/user_demand_cambridge_oct7.csv",true); 
     csv_file pdemand_csv <- csv_file (cityDemandFolder+ "/fooddeliverytrips_cambridge.csv",true);
        

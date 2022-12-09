@@ -471,11 +471,8 @@ species autonomousBike control: fsm skills: [moving] {
 		"wandering"::#blue,
 		
 		"low_battery":: #red,
-		//"night_recharging":: #orangered,
 		"getting_charge":: #red,
-		//"getting_night_charge":: #orangered,
-		//"night_relocating":: #springgreen,
-		
+
 		"picking_up_people"::#springgreen,
 		"picking_up_packages"::#mediumorchid,
 		"in_use_people"::#gamagreen,
