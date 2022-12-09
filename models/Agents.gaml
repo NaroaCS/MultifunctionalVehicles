@@ -75,6 +75,44 @@ global {
 		}
 	}
 	
+	//If bidding not enabled
+	bool requestAutonomousBike(people person, package pack, point destination) {
+	 
+		list<autonomousBike> available <- (autonomousBike where each.availableForRideAB());
+		
+		if empty(available) {
+			return false;
+		} else {
+			if person != nil{ //People demand
+			
+			point personIntersection <- roadNetwork.vertices closest_to(person);
+			autonomousBike b <- available closest_to(personIntersection); 
+			float d<- distanceInGraph(personIntersection,b.location);
+
+			if d<maxDistancePeople_AutonomousBike {
+					ask b { do pickUp(person, nil);}
+					ask person {do ride(b);}
+					return true;
+			}else {
+					return false; // If it is NOT close enough
+				}
+						
+			} else if pack != nil{ //Package demand
+			
+				//Then just select closest bike
+				autonomousBike b <- available closest_to(pack);
+				ask b { do pickUp(nil,pack);}
+				ask pack { do deliver(b);}
+				return true;
+				
+			} else { 
+				write 'Error in request bike'; //Because no one made this request
+				return false;
+			}
+			
+		}
+	}
+			
 		
 }
 
@@ -200,11 +238,33 @@ species package control: fsm skills: [moving] {
     		if (packageEventLog or packageTripLog) {ask logger { do logEnterState;}}
     		target <- nil;
     	}
-    	transition to: bidding when: timeToTravel() {
+    	transition to: bidding when: timeToTravel() and biddingEnabled { //Flow if bidding is enabled: bidding--> awaitingBikeAssignation --> firstmile
+    		final_destination <- target_point;
+    	}
+    	transition to: requestingAutonomousBike when: timeToTravel() and !biddingEnabled{ //Flow if bidding is NOT enabled: requestingAutonomousBike --> firstmile
     		final_destination <- target_point;
     	}
     	exit {
 			if (packageEventLog) {ask logger { do logExitState; }}
+		}
+    }
+    
+    //If bidding not enabled
+    state requestingAutonomousBike {
+    	
+    	enter {
+    		if  (packageEventLog or packageTripLog) {ask logger { do logEnterState; }}    		
+    	}
+    	transition to: firstmile when: host.requestAutonomousBike(nil,self,final_destination){		
+    		 target <- (road closest_to(self)).location;
+    	}
+
+		transition to: wandering {
+			if peopleEventLog {ask logger { do logEvent( "Package not delivered" ); }}
+			location <- final_destination;
+		} 
+    	exit {
+    		if packageEventLog {ask logger { do logExitState; }}
 		}
     }
     
@@ -369,13 +429,34 @@ species people control: fsm skills: [moving] {
     		if peopleEventLog or peopleTripLog {ask logger { do logEnterState; }}
     		target <- nil;
     	}
-    	transition to: bidding when: timeToTravel() {
-       		final_destination <- target_point;
+    	transition to: bidding when: timeToTravel() and biddingEnabled { //Flow if bidding is enabled: bidding--> awaitingBikeAssignation --> firstmile
+    		final_destination <- target_point;
+    	}
+    	transition to: requestingAutonomousBike when: timeToTravel() and !biddingEnabled{ //Flow if bidding is NOT enabled: requestingAutonomousBike --> firstmile
+    		final_destination <- target_point;
     	}
     	exit {
 			if peopleEventLog {ask logger { do logExitState; }}
 		}
     }
+    
+    //If bidding not enabled
+    state requestingAutonomousBike {
+		enter {
+			if peopleEventLog or peopleTripLog {ask logger { do logEnterState; }} 
+		}
+		transition to: firstmile when: host.requestAutonomousBike(self, nil, final_destination) {
+			target <- (road closest_to(self)).location;
+		}
+		transition to: wandering {
+			if peopleEventLog {ask logger { do logEvent( "Used another mode, wait too long" ); }}
+			location <- final_destination;
+		}
+		exit {
+			if peopleEventLog {ask logger { do logExitState("Requested Bike " + myself.autonomousBikeToRide); }}
+		}
+		
+	}
     
     state bidding {
 		enter {
