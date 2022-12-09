@@ -831,6 +831,8 @@ species autonomousBike control: fsm skills: [moving] {
 			}
 			transition to: in_use_packages when: (location=target and delivery.location=target) {}
 			exit{
+				trips_w_good_service <- trips_w_good_service+1;
+				write 'trips with good service: '+trips_w_good_service;
 				if autonomousBikeEventLog {ask eventLogger { do logExitState("Picked up " + myself.delivery); }}
 			}
 	}
@@ -851,6 +853,8 @@ species autonomousBike control: fsm skills: [moving] {
 			rider <- nil;
 		}
 		exit {
+			trips_w_good_service <- trips_w_good_service+1;
+			write 'trips with good service: '+trips_w_good_service;
 			if autonomousBikeEventLog {ask eventLogger { do logExitState("Used" + myself.rider); }}
 		}
 	}

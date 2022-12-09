@@ -13,6 +13,9 @@ global {
 	graph roadNetwork;
 	list<int> chargingStationLocation;
 	
+	// For genetic optimization
+	int trips_w_good_service <-0;
+	
     // ---------------------------------------Agent Creation----------------------------------------------
 	init{
     	// ---------------------------------------Buildings-----------------------------i----------------
@@ -211,6 +214,77 @@ experiment batch_people_packages_bidding type: batch repeat: 1 until: (cycle >= 
 	parameter var: peopleEnabled init:true;
 	parameter var: packagesEnabled init:true;
 	parameter var: biddingEnabled init: true;
+	
 	//TODO: review num Stations and charging speed
 	//TODO: review maxDistance
+	
+	//TODO: review this params
+	parameter var: maxBiddingTime init: 2;
+	parameter var: pack_bid_ct init: 100.00;
+	parameter var: pack_bid_dist_coef init: 1/100;
+	parameter var: pack_bid_queue_coef init: 2.0;
+	parameter var: person_bid_ct init: 200.00;
+	parameter var: person_bid_dist_coef init: 1/100;
+	parameter var: person_bid_queue_coef init: 2.0;
+
 }
+
+experiment bidding_genetic type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
+	parameter var: peopleEnabled init:true;
+	parameter var: packagesEnabled init:true;
+	parameter var: biddingEnabled init: true;
+	
+	//TODO: review this params
+	//parameter var: maxWaitTimePeople init: 10; //Intsead of 30 ?
+	//parameter var: maxWaitTimePackages init: 20; //Intsead of 50 ?
+	
+	parameter var: maxBiddingTime among: [1,2,3]; //TODO: make sure we are adding this time to wait time
+	parameter var: pack_bid_ct among: [100.00,200.00,300.00];
+	parameter var: pack_bid_dist_coef among: [1/100, 1/200,1/300];
+	parameter var: pack_bid_queue_coef among: [1.5,2.5,3.5];
+	parameter var: person_bid_ct among: [200.00,300.00,400.00];
+	parameter var: person_bid_dist_coef among: [1/100, 1/200,1/300]; //TODO: Maybe dist and queue are the same for bike and package?
+	parameter var: person_bid_queue_coef among: [1.5,2.5,3.5];
+	
+	method genetic 
+    pop_dim: 5 crossover_prob: 0.7 mutation_prob: 0.1 
+    nb_prelim_gen: 1 max_gen: 20  maximize: trips_w_good_service;
+	
+	reflex save_results {
+		ask simulations {
+			//save [numBikes,evaporation,exploitationRate ,WanderingSpeed,avg_wait ] type: csv to:"./../data/results_genetic_1500_3.csv" rewrite: (int(self) = 0) ? true : false header: true ;
+		    save [maxBiddingTime,pack_bid_ct,pack_bid_dist_coef,pack_bid_queue_coef,person_bid_ct, person_bid_dist_coef,person_bid_queue_coef] type: csv to:"./../results/results_genetic_bidding.csv" rewrite: (int(self) = 0) ? true : false header: true ;
+		}
+	}
+
+}
+
+/*experiment bidding_genetic type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
+	
+	parameter var: peopleEnabled init:true;
+	parameter var: packagesEnabled init:true;
+	parameter var: biddingEnabled init: true;
+	
+	//TODO: review this params
+	parameter var: maxWaitTimePeople init: 10; //Intsead of 30 ?
+	parameter var: maxWaitTimePackages init: 20; //Intsead of 50 ?
+	parameter var: maxBiddingTime among: [1,2,3]; //TODO: make sure we are adding this time to wait time
+	parameter var: pack_bid_ct among: [100.00,200.00,300.00];
+	parameter var: pack_bid_dist_coef among: [1/100, 1/200,1/300];
+	parameter var: pack_bid_queue_coef init: [1.5,2.5,3.5];
+	parameter var: person_bid_ct among: [200.00,300.00,400.00];
+	parameter var: person_bid_dist_coef init: [1/100, 1/200,1/300]; //TODO: Maybe dist and queue are the same for bike and package?
+	parameter var: person_bid_queue_coef init: [1.5,2.5,3.5];
+	
+	
+	method genetic 
+        pop_dim: 5 crossover_prob: 0.7 mutation_prob: 0.1 
+        nb_prelim_gen: 1 max_gen: 20  maximize: trips_w_good_service;//TODO: Define param
+	
+	reflex save_results {
+		ask simulations {
+			//save [numBikes,evaporation,exploitationRate ,WanderingSpeed,avg_wait ] type: csv to:"./../data/results_genetic_1500_3.csv" rewrite: (int(self) = 0) ? true : false header: true ;
+		    save [maxBiddingTime,pack_bid_ct,pack_bid_dist_coef,pack_bid_queue_coef,person_bid_ct, person_bid_dist_coef,person_bid_queue_coef] type: csv to:"./../results/results_genetic_bidding.csv" rewrite: (int(self) = 0) ? true : false header: true ;
+		}
+	}
+}*/
