@@ -212,6 +212,19 @@ species package control: fsm skills: [moving] {
     
     state bidding {
     	enter {
+    		write string(self) + 'entering bidding';
+    		if (packageEventLog or packageTripLog) {ask logger { do logEnterState; }} 
+    		bidClear <-0;
+    		target <- (road closest_to(self)).location;
+   	
+    	}
+    	transition to: awaiting_bike_assignation when: host.bidForBike(nil,self){		
+    	}
+    	exit {
+    		if packageEventLog {ask logger { do logExitState; }}
+		}
+    	
+    	/*enter {
     		if register = 1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState; }} 
     		bidClear <-0;
     		target <- (road closest_to(self)).location;
@@ -228,11 +241,11 @@ species package control: fsm skills: [moving] {
     	}
     	exit {
     		if register = 1 and packageEventLog {ask logger { do logExitState; }}
-		}
+		}*/
 		
 	}
     state awaiting_bike_assignation{
-    	enter{
+    	/*enter{
     		if register = 1 and (packageEventLog or packageTripLog){ask logger {do logEnterState;}}
     		if !host.bikeAssigned(nil,self){
     			register <-0;
@@ -243,14 +256,25 @@ species package control: fsm skills: [moving] {
 	    transition to: firstmile when: host.bikeAssigned(nil,self){ //register = 1{
 	    	target <- (road closest_to(self)).location;
 	    }
-	    /*transition to: wait_bidding when: register = 0 {
-	    }*/
 	    transition to: bidding when: bidClear = 1 {
 	    	register <-0;
 	    	write string(self)+ 'lost bid, will bid again';
 	    }
 	    exit {
 	    if register = 1 and packageEventLog {ask logger { do logExitState; }}
+		}*/
+		
+		enter{
+    		if (packageEventLog or packageTripLog){ask logger {do logEnterState;}}
+    	}
+	    transition to: firstmile when: host.bikeAssigned(nil,self){ //register = 1{
+	    	target <- (road closest_to(self)).location;
+	    }
+	    transition to: bidding when: bidClear = 1 {
+	    	write string(self)+ 'lost bid, will bid again';
+	    }
+	    exit {
+	    if packageEventLog {ask logger { do logExitState; }}
 		}
    
    }
@@ -394,12 +418,12 @@ species people control: fsm skills: [moving] {
     
     state bidding {
 		enter {
+			write string(self) + 'entering bidding';
 			if peopleEventLog or peopleTripLog {ask logger { do logEnterState; }} 
 			bidClear <- 0;
 			target <- (road closest_to(self)).location;
-			bool r <- host.bidForBike(self,nil); //TODO: Review, not sure if it was called otherwise
 		}
-		transition to: awaiting_bike_assignation when: r = true {
+		transition to: awaiting_bike_assignation when: host.bidForBike(self,nil) {
 		}
 		transition to: wandering {
 			if peopleEventLog {ask logger { do logEvent( "Used another mode, wait too long" ); }}
