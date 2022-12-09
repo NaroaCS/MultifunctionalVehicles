@@ -43,7 +43,6 @@ global {
 			]
 			{
 				location <- to_GAMA_CRS({lon,lat},"EPSG:4326").location;
-				
 			 	//chargingStationCapacity <- capacity;
 			}
 			
@@ -130,6 +129,6 @@ experiment multifunctionalVehiclesVisual type: gui {
     }
 }
 
-experiment batch_test type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
-	parameter var: numAutonomousBikes among:[100,200,300];
+experiment batch_test_people type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
+	parameter var: numAutonomousBikes among:[100,150,200,250,300];
 }

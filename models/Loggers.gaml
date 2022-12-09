@@ -42,6 +42,11 @@ global {
 		"Starting Date: "+string(starting_date),
 		"Number of Days of Simulation: "+string(numberOfDays),
 		"Number ot Hours of Simulation (if less than one day): "+string(numberOfHours),
+		
+		"People enabled: "+string(peopleEnabled),
+		"Pakcages enabled: "+string(packagesEnabled),
+		"Bidding enabled: "+string(biddingEnabled),
+		
 
 		"------------------------------BIKE PARAMETERS------------------------------",
 		"Number of Bikes: "+string(numAutonomousBikes),

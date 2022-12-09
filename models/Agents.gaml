@@ -27,6 +27,7 @@ global {
 			float d<- distanceInGraph(personIntersection,b.location); //Get distance on roadNetwork
 		
 			if d >maxDistancePeople_AutonomousBike{
+				//write 'Dist: '+d+' > max dist: '+maxDistancePeople_AutonomousBike;
 				return false;	 //If closest bike is too far, return false
 			}else{
 				float bidValuePerson <- (person_bid_ct -person_bid_dist_coef*d +person_bid_queue_coef*person.queueTime); 
@@ -40,8 +41,10 @@ global {
 			point packIntersection <- roadNetwork.vertices closest_to(pack); //Cast position to road node
 			autonomousBike b <- availableBikes closest_to(packIntersection); //Get closest bike
 			float d<- distanceInGraph(packIntersection,b.location); //Get distance on roadNetwork
-		
+			//write 'Dist: ' + d;
+			
 			if d >maxDistancePackage_AutonomousBike{
+				//write 'Dist: '+d+' > max dist: '+maxDistancePackage_AutonomousBike;
 				return false;	 //If closest bike is too far, return false
 			}else{
 				float bidValuePackage <- (pack_bid_ct - pack_bid_dist_coef*d+ pack_bid_queue_coef*pack.queueTime); 
@@ -76,7 +79,7 @@ global {
 	}
 	
 	//If bidding not enabled
-	bool requestAutonomousBike(people person, package pack, point destination) {
+	bool requestAutonomousBike(people person, package pack) {
 	 
 		list<autonomousBike> available <- (autonomousBike where each.availableForRideAB());
 		
@@ -255,7 +258,7 @@ species package control: fsm skills: [moving] {
     	enter {
     		if  (packageEventLog or packageTripLog) {ask logger { do logEnterState; }}    		
     	}
-    	transition to: firstmile when: host.requestAutonomousBike(nil,self,final_destination){		
+    	transition to: firstmile when: host.requestAutonomousBike(nil,self){		
     		 target <- (road closest_to(self)).location;
     	}
 
@@ -264,7 +267,8 @@ species package control: fsm skills: [moving] {
 			location <- final_destination;
 		} 
     	exit {
-    		if packageEventLog {ask logger { do logExitState; }}
+    		//if packageEventLog {ask logger { do logExitState; }}
+			if packageEventLog {ask logger { do logExitState("Requested Bike " + myself.autonomousBikeToDeliver); }}
 		}
     }
     
@@ -299,7 +303,8 @@ species package control: fsm skills: [moving] {
 	    	write string(self)+ 'lost bid, will bid again';
 	    }
 	    exit {
-	    if packageEventLog {ask logger { do logExitState; }}
+	    	//if packageEventLog {ask logger { do logExitState; }}
+	    	if packageEventLog {ask logger { do logExitState("Requested Bike " + myself.autonomousBikeToDeliver); }}
 		}
    
    }
@@ -445,7 +450,7 @@ species people control: fsm skills: [moving] {
 		enter {
 			if peopleEventLog or peopleTripLog {ask logger { do logEnterState; }} 
 		}
-		transition to: firstmile when: host.requestAutonomousBike(self, nil, final_destination) {
+		transition to: firstmile when: host.requestAutonomousBike(self, nil) {
 			target <- (road closest_to(self)).location;
 		}
 		transition to: wandering {
@@ -489,8 +494,8 @@ species people control: fsm skills: [moving] {
 			
 		}
 		exit {
-			//if peopleEventLog {ask logger { do logExitState("Requested Bike " + myself.autonomousBikeToRide); }}
-			if peopleEventLog { ask logger {do logExitState;}}
+			if peopleEventLog {ask logger { do logExitState("Requested Bike " + myself.autonomousBikeToRide); }}
+			// peopleEventLog { ask logger {do logExitState;}}
 		}
 		
 	}
@@ -710,7 +715,9 @@ species autonomousBike control: fsm skills: [moving] {
 			}
 			target <- nil;
 		}
-		transition to: bidding when: biddingStart= true{} // When it receives bid
+		transition to: bidding when: biddingStart= true and biddingEnabled{} // When it receives bid
+		transition to: picking_up_people when: rider != nil and activity = 1 and !biddingEnabled{} //If no bidding
+		transition to: picking_up_packages when: delivery != nil and activity = 0 and !biddingEnabled{} //If no bidding
 		transition to: low_battery when: setLowBattery() {}
 		exit {
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}

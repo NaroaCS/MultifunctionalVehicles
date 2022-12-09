@@ -9,7 +9,7 @@ global {
 	float step <- 5 #sec; //TODO: Change to 2 
 	
 	//Simulation starting date
-	date starting_date <- date("2019-10-07 00:00:00"); 
+	date starting_date <- date("2019-10-07 10:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
@@ -44,8 +44,8 @@ global {
 	bool roadsTraveledLog <- false parameter: "Roads Traveled Log" category: "Logs";
 	
 	//-----------------Autonomous Bike Parameters-----------------------
-	int numAutonomousBikes <- 10				min: 0 max: 2000 parameter: "Num Autonomous Bikes:" category: "Bike";
-	float maxBatteryLifeAutonomousBike <- 50000.0 #m	min: 10000#m max: 70000#m parameter: "Autonomous Bike Battery Capacity (m):" category: "Bike"; //battery capacity in m
+	int numAutonomousBikes <- 100				min: 10 max: 2000 parameter: "Num Autonomous Bikes:" category: "Bike";
+	float maxBatteryLifeAutonomousBike <- 70000.0 #m	min: 10000#m max: 70000#m parameter: "Autonomous Bike Battery Capacity (m):" category: "Bike"; //battery capacity in m
 	float DrivingSpeedAutonomousBike <-  8/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Driving Speed (m/s):" category:  "Bike";
 	float minSafeBatteryAutonomousBike <- 0.25*maxBatteryLifeAutonomousBike #m; //Amount of battery at which we seek battery and that is always reserved when charging another bike
 	
