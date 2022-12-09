@@ -29,7 +29,7 @@ global {
 			if d >maxDistancePeople_AutonomousBike{
 				return false;	 //If closest bike is too far, return false
 			}else{
-				float bidValuePerson <- (200-d/100+person.queueTime); 
+				float bidValuePerson <- (person_bid_ct -person_bid_dist_coef*d +person_bid_queue_coef*person.queueTime); 
 				// Bid value ct is higher for people, its smaller for larger distances, and larger for larger queue times
 				
 				ask b { do receiveBid(person,nil,bidValuePerson);} //Send bid value to bike
@@ -44,7 +44,7 @@ global {
 			if d >maxDistancePackage_AutonomousBike{
 				return false;	 //If closest bike is too far, return false
 			}else{
-				float bidValuePackage <- (100-d/100+pack.queueTime); 
+				float bidValuePackage <- (pack_bid_ct - pack_bid_dist_coef*d+ pack_bid_queue_coef*pack.queueTime); 
 				// Bid value ct is lower for packages, its smaller for larger distances, and larger for larger queue times
 				
 				ask b { do receiveBid(nil,pack,bidValuePackage);} //Send bid value to bike
@@ -562,8 +562,8 @@ species autonomousBike control: fsm skills: [moving] {
 
 		
 	path moveTowardTarget {
-		if (state="in_use_people" or state="in_use_packages"){return goto(on:roadNetwork, target:target, return_path: true, speed:RidingSpeedAutonomousBike);}
-		return goto(on:roadNetwork, target:target, return_path: true, speed:PickUpSpeedAutonomousBike);
+		if (state="in_use_people"){return goto(on:roadNetwork, target:target, return_path: true, speed:RidingSpeedAutonomousBike);}
+		return goto(on:roadNetwork, target:target, return_path: true, speed:DrivingSpeedAutonomousBike);
 	}
 	
 	reflex move when: canMove() {

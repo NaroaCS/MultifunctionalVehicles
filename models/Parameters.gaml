@@ -40,10 +40,20 @@ global {
 	//-----------------Autonomous Bike Parameters-----------------------
 	int numAutonomousBikes <- 10				min: 0 max: 2000 parameter: "Num Autonomous Bikes:" category: "Bike";
 	float maxBatteryLifeAutonomousBike <- 50000.0 #m	min: 10000#m max: 70000#m parameter: "Autonomous Bike Battery Capacity (m):" category: "Bike"; //battery capacity in m
-	float PickUpSpeedAutonomousBike <-  8/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Pick-up Speed (m/s):" category:  "Bike";
-	float RidingSpeedAutonomousBike <-  PickUpSpeedAutonomousBike min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Riding Speed (m/s):" category:  "Bike";
+	float DrivingSpeedAutonomousBike <-  8/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Driving Speed (m/s):" category:  "Bike";
 	float minSafeBatteryAutonomousBike <- 0.25*maxBatteryLifeAutonomousBike #m; //Amount of battery at which we seek battery and that is always reserved when charging another bike
+	
+	
+	//-----------------Bidding-----------------------
 	int maxBiddingTime <- 3 min:0 max:60 parameter: "Maximum bidding time";
+	float pack_bid_ct <- 100.00;
+	float pack_bid_dist_coef <- 1/100;
+	float pack_bid_queue_coef <- 2.0;
+	float person_bid_ct <- 200.00;
+	float person_bid_dist_coef <- 1/100;
+	float person_bid_queue_coef <- 2.0;
+	
+	
 	//float nightSafeBatteryAutonomousBike <- 0.9*maxBatteryLifeAutonomousBike #m; 
 	
 	//----------------------numChargingStationsion Parameters------------------------
@@ -62,13 +72,14 @@ global {
 	//int numPeople <- 250 				min: 0 max: 1000 parameter: "Num People:" category: "Initial";
 	float maxWaitTimePeople <- 30 #mn		min: 3#mn max: 60#mn parameter: "Max Wait Time People:" category: "People";
 	float maxWalkTimePeople <- 10 #mn  min: 1 #mn  max: 15 #mn parameter: "Max Walking Time People:" category: "People";
-	float maxDistancePeople_AutonomousBike <- maxWaitTimePeople*PickUpSpeedAutonomousBike #m; //The maxWaitTime is translated into a max radius taking into account the speed of the bikes
+	float maxDistancePeople_AutonomousBike <- maxWaitTimePeople*DrivingSpeedAutonomousBike #m; //The maxWaitTime is translated into a max radius taking into account the speed of the bikes
     float peopleSpeed <- 5/3.6 #m/#s	min: 1/3.6 #m/#s max: 10/3.6 #m/#s parameter: "People Speed (m/s):" category: "People";
    	float maxDistancePeople_DocklessBike <- maxWalkTimePeople*peopleSpeed #m; 
-    
+    float RidingSpeedAutonomousBike <-  10.2/3.6  min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Riding Speed (m/s):" category:  "Bike";
+	
     //--------------------------Package Parameters----------------------------
     float maxWaitTimePackage <- 60 #mn		min: 3#mn max: 1440#mn parameter: "Max Wait Time Package:" category: "Package";
-	float maxDistancePackage_AutonomousBike <- maxWaitTimePackage*PickUpSpeedAutonomousBike #m;
+	float maxDistancePackage_AutonomousBike <- maxWaitTimePackage*DrivingSpeedAutonomousBike #m;
 	 
     //--------------------------Demand Parameters-----------------------------
     string cityDemandFolder <- "./../includes/Demand";

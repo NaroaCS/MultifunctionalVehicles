@@ -12,12 +12,12 @@ global {
 	action log(string filename, list data, list<string> columns) {
 		if not(filename in filenames.keys) {
 			do registerLogFile(filename);
-			save ["Cycle", "Time", "NumBikes","Battery","PickUpSpeed",'Agent'] + columns to: filenames[filename] type: "csv" rewrite: false header: false;
+			save ["Cycle", "Time", "NumBikes","Battery","AutDrivingSpeed",'MaxBiddingTime','PackBidCt','PackBidDist','PackBidQueue','PersonBidCt','PersonBidDist','PersonBidQueue','Agent'] + columns to: filenames[filename] type: "csv" rewrite: false header: false;
 		}
 		
 		//if level <= loggingLevel {
 		if loggingEnabled {
-			save [cycle, string(current_date, "HH:mm:ss"), numAutonomousBikes, maxBatteryLifeAutonomousBike, PickUpSpeedAutonomousBike*3.6] + data to: filenames[filename] type: "csv" rewrite: false header: false;
+			save [cycle, string(current_date, "HH:mm:ss"), numAutonomousBikes, maxBatteryLifeAutonomousBike, DrivingSpeedAutonomousBike*3.6,maxBiddingTime,pack_bid_ct,pack_bid_dist_coef,pack_bid_queue_coef,person_bid_ct,person_bid_dist_coef,person_bid_queue_coef] + data to: filenames[filename] type: "csv" rewrite: false header: false;
 		}
 		if  printsEnabled {
 			write [cycle, string(current_date,"HH:mm:ss")] + data;
@@ -46,9 +46,19 @@ global {
 		"------------------------------BIKE PARAMETERS------------------------------",
 		"Number of Bikes: "+string(numAutonomousBikes),
 		"Max Battery Life of Bikes [km]: "+string(maxBatteryLifeAutonomousBike/1000 with_precision 2),
-		"Pick-up speed [km/h]: "+string(PickUpSpeedAutonomousBike*3.6),
+		"Autonomous driving speed [km/h]: "+string(DrivingSpeedAutonomousBike*3.6),
 		"Minimum Battery [%]: "+string(minSafeBatteryAutonomousBike/maxBatteryLifeAutonomousBike*100),
 		
+		"------------------------------BIDDING PARAMETERS------------------------------",
+		
+		"Maximum bidding time [min]" +string(maxBiddingTime),
+		"Package bidding constant: " +string(pack_bid_ct) ,
+		"Package distance coefficient (-):" +string(pack_bid_dist_coef),
+		"Package queue time coefficient: " +string(pack_bid_queue_coef),
+		"Person bidding constant: " +string(person_bid_ct),
+		"Person distance coefficient (-): " +string(person_bid_dist_coef),
+		"Person queue time coefficient: " +string(person_bid_queue_coef),
+			
 		"------------------------------PEOPLE PARAMETERS------------------------------",
 		"Maximum Wait Time People [min]: "+string(maxWaitTimePeople/60),
 		"Walking Speed [km/h]: "+string(peopleSpeed*3.6),
