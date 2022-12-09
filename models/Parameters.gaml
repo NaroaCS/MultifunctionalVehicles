@@ -6,14 +6,14 @@ global {
 	//----------------------Simulation Parameters------------------------
 	
 	//Simulation time step
-	float step <- 5 #sec; //TODO: Change to 2 
+	float step <- 2 #sec; //TODO: Change to 2 
 	
 	//Simulation starting date
-	date starting_date <- date("2019-10-07 10:00:00"); 
+	date starting_date <- date("2019-10-07 0:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
-	date logDate <- date("2022-12-06 16:30:00");
+	date logDate <- date("2022-12-09 16:30:00");
 	
 	date nowDate <- #now;
 	
@@ -51,7 +51,7 @@ global {
 	
 	
 	//-----------------Bidding-----------------------
-	int maxBiddingTime <- 3 min:0 max:60 parameter: "Maximum bidding time";
+	int maxBiddingTime <- 2 min:0 max:60 parameter: "Maximum bidding time";
 	float pack_bid_ct <- 100.00;
 	float pack_bid_dist_coef <- 1/100;
 	float pack_bid_queue_coef <- 2.0;
@@ -70,9 +70,11 @@ global {
 	int chargingStationCapacity <- 16; //Average number of docks in bluebikes stations in April 2022*/
 	
 	//------------------------------------After--------------------------------------
-	int numChargingStations <- 75 	min: 1 max: 100 parameter: "Num Charging Stations:" category: "Initial";
-	//float V2IChargingRate <- maxBatteryLifeAutonomousBike/(4.5*60*60) #m/#s; //4.5 h of charge
-	float V2IChargingRate <- maxBatteryLifeAutonomousBike/(111) #m/#s;  // 111 s battery swapping -> average of the two reported by Fei-Hui Huang 2019 Understanding user acceptancd of battery swapping service of sustainable transport
+	int numChargingStations <- 25 	min: 1 max: 100 parameter: "Num Charging Stations:" category: "Initial";
+	int chargingStationCapacity <- 16; //Average number of docks in bluebikes stations in April 2022*/
+	//TODO: review numCharging stations
+	float V2IChargingRate <- maxBatteryLifeAutonomousBike/(4.5*60*60) #m/#s; //4.5 h of charge
+	//float V2IChargingRate <- maxBatteryLifeAutonomousBike/(111) #m/#s;  // 111 s battery swapping -> average of the two reported by Fei-Hui Huang 2019 Understanding user acceptancd of battery swapping service of sustainable transport
 		
 	//--------------------------People Parameters----------------------------
 	//int numPeople <- 250 				min: 0 max: 1000 parameter: "Num People:" category: "Initial";

@@ -34,9 +34,59 @@ global {
 					   
 		// -------------------------------------Location of the charging stations----------------------------------------   
 		
-		//--------------------------------------After--------------------------------------------------
+				// -------------------------------------Location of the charging stations----------------------------------------   
+		//-----------------------------------------------Before----------------------------------------------------------
 		
-		create chargingStation from: chargingStations_csv with:
+		list<int> tmpDist;
+	    		
+		loop vertex over: roadNetwork.vertices {
+			create intersection {
+				id <- roadNetwork.vertices index_of vertex;
+				location <- point(vertex);
+			}
+		}
+
+		//K-Means		
+		//Create a list of x,y coordinate for each intersection
+		list<list> instances <- intersection collect ([each.location.x, each.location.y]);
+
+		//from the vertices list, create k groups  with the Kmeans algorithm (https://en.wikipedia.org/wiki/K-means_clustering)
+		list<list<int>> kmeansClusters <- list<list<int>>(kmeans(instances, numChargingStations));
+
+		//from clustered vertices to centroids locations
+		int groupIndex <- 0;
+		list<point> coordinatesCentroids <- [];
+		loop cluster over: kmeansClusters {
+			groupIndex <- groupIndex + 1;
+			list<point> coordinatesVertices <- [];
+			loop i over: cluster {
+				add point (roadNetwork.vertices[i]) to: coordinatesVertices; 
+			}
+			add mean(coordinatesVertices) to: coordinatesCentroids;
+		}    
+	    
+		loop centroid from:0 to:length(coordinatesCentroids)-1 {
+			tmpDist <- [];
+			loop vertices from:0 to:length(roadNetwork.vertices)-1{
+				add (point(roadNetwork.vertices[vertices]) distance_to coordinatesCentroids[centroid]) to: tmpDist;
+			}	
+			loop vertices from:0 to: length(tmpDist)-1{
+				if(min(tmpDist)=tmpDist[vertices]){
+					add vertices to: chargingStationLocation;
+					break;
+				}
+			}	
+		}
+	    
+	    loop i from: 0 to: length(chargingStationLocation) - 1 {
+			create chargingStation{
+				location <- point(roadNetwork.vertices[chargingStationLocation[i]]);
+				capacity <- chargingStationCapacity;
+			}
+		}
+		//--------------------------------------Another option--------------------------------------------------
+		
+		/*create chargingStation from: chargingStations_csv with:
 			[lat::float(get("Latitude")),
 			lon::float(get("Longitude")),
 			capacity::int(get("Total docks"))
@@ -44,7 +94,7 @@ global {
 			{
 				location <- to_GAMA_CRS({lon,lat},"EPSG:4326").location;
 			 	//chargingStationCapacity <- capacity;
-			}
+			}*/
 			
 		// -------------------------------------------The Bikes -----------------------------------------
 		create autonomousBike number:numAutonomousBikes{					
@@ -131,4 +181,36 @@ experiment multifunctionalVehiclesVisual type: gui {
 
 experiment batch_test_people type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
 	parameter var: numAutonomousBikes among:[100,150,200,250,300];
+	parameter var: peopleEnabled init:true;
+	parameter var: packagesEnabled init:false;
+	parameter var: biddingEnabled init: false;
+	//TODO: review num Stations and charging speed
+	//TODO: review maxDistance
+}
+
+experiment batch_test_packages type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
+	parameter var: numAutonomousBikes among:[100,150,200,250,300];
+	parameter var: peopleEnabled init:false;
+	parameter var: packagesEnabled init:true;
+	parameter var: biddingEnabled init: false;
+	//TODO: review num Stations and charging speed
+	//TODO: review maxDistance
+}
+
+experiment batch_people_packages_nobid type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
+	parameter var: numAutonomousBikes among:[200,300,400,500,600];
+	parameter var: peopleEnabled init:true;
+	parameter var: packagesEnabled init:true;
+	parameter var: biddingEnabled init: false;
+	//TODO: review num Stations and charging speed
+	//TODO: review maxDistance
+}
+
+experiment batch_people_packages_bidding type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
+	parameter var: numAutonomousBikes among:[200,300,400,500,600];
+	parameter var: peopleEnabled init:true;
+	parameter var: packagesEnabled init:true;
+	parameter var: biddingEnabled init: true;
+	//TODO: review num Stations and charging speed
+	//TODO: review maxDistance
 }
