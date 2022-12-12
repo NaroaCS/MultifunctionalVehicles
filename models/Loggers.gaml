@@ -237,13 +237,16 @@ species peopleLogger parent: Logger mirrors: people {
 		
 		if peopleTripLog{ //because trips are logged by the eventLogger
 			switch currentState {
-				match "requesting_autonomousBike" {
+				match "requestingAutonomousBike" {
 					cycleAutonomousBikeRequested <- cycle;
+					write  string(self)+"Autonomous bike requested at Cycle: "+cycleAutonomousBikeRequested;
 					served <- false;
 				}
 				match "riding_autonomousBike" {
 					//trip is served
+					write  string(self)+"Bike arrived at cycle : "+cycle;
 					waitTime <- (cycle*step- cycleAutonomousBikeRequested*step)/60;
+					write  string(self)+"wait time : "+waitTime;
 					departureTime <- current_date;
 					departureCycle <- cycle;
 					served <- true;

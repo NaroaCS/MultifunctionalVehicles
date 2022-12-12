@@ -25,9 +25,9 @@ global {
 			point personIntersection <- roadNetwork.vertices closest_to(person); //Cast position to road node
 			autonomousBike b <- availableBikes closest_to(personIntersection); //Get closest bike
 			float d<- distanceInGraph(personIntersection,b.location); //Get distance on roadNetwork
-		
+			//write 'Dist: '+d+' // max dist: '+maxDistancePeople_AutonomousBike;
 			if d >maxDistancePeople_AutonomousBike{
-				//write 'Dist: '+d+' > max dist: '+maxDistancePeople_AutonomousBike;
+	
 				return false;	 //If closest bike is too far, return false
 			}else{
 				float bidValuePerson <- (person_bid_ct -person_bid_dist_coef*d +person_bid_queue_coef*person.queueTime); 
@@ -91,7 +91,8 @@ global {
 			point personIntersection <- roadNetwork.vertices closest_to(person);
 			autonomousBike b <- available closest_to(personIntersection); 
 			float d<- distanceInGraph(personIntersection,b.location);
-
+			
+			write 'Dist: '+d+' // max dist: '+maxDistancePeople_AutonomousBike;
 			if d<maxDistancePeople_AutonomousBike {
 					ask b { do pickUp(person, nil);}
 					ask person {do ride(b);}
@@ -368,7 +369,7 @@ species people control: fsm skills: [moving] {
 	
     map<string, rgb> color_map <- [
     	"wandering":: #blue,
-		"requesting_autonomousBike":: #springgreen,
+		"requestingAutonomousBike":: #springgreen,
 		"awaiting_autonomousBike":: #springgreen,
 		"riding_autonomousBike":: #gamagreen,
 		"firstmile":: #blue,

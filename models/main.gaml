@@ -160,7 +160,10 @@ global {
 
 experiment multifunctionalVehiclesVisual type: gui {
 	parameter var: numAutonomousBikes init: numAutonomousBikes;
-	float minimum_cycle_duration<-0.01;
+	//float minimum_cycle_duration<-0.01;
+	parameter var: peopleEnabled init:true;
+	parameter var: packagesEnabled init:false;
+	parameter var: biddingEnabled init: false;
     output {
 		display multifunctionalVehiclesVisual type:opengl background: #black axes: false{	 
 			species building aspect: type visible:show_building position:{0,0,-0.001};
@@ -184,6 +187,7 @@ experiment multifunctionalVehiclesVisual type: gui {
 
 experiment batch_test_people type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
 	parameter var: numAutonomousBikes among:[100,150,200,250,300];
+	//parameter var: numAutonomousBikes init:300;
 	parameter var: peopleEnabled init:true;
 	parameter var: packagesEnabled init:false;
 	parameter var: biddingEnabled init: false;
