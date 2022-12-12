@@ -13,7 +13,7 @@ global {
 	
 	//Date for log files
 	//date logDate <- #now;
-	date logDate <- date("2022-12-11 11:00:00");
+	date logDate <- date("2022-12-12 16:47:00");
 	
 	date nowDate <- #now;
 	
@@ -29,17 +29,17 @@ global {
 	
 	//----------------------Logging Parameters------------------------
 	bool loggingEnabled <- true parameter: "Logging" category: "Logs";
-	bool printsEnabled <- true parameter: "Printing" category: "Logs";
+	bool printsEnabled <- false parameter: "Printing" category: "Logs";
 	
 	bool autonomousBikeEventLog <-true parameter: "Autonomous Bike Event/Trip Log" category: "Logs";
 	
 	bool peopleTripLog <-true parameter: "People Trip Log" category: "Logs";
-	bool peopleEventLog <-true parameter: "People Event Log" category: "Logs";
+	bool peopleEventLog <-false parameter: "People Event Log" category: "Logs";
 	
 	bool packageTripLog <-true parameter: "Package Trip Log" category: "Logs";
-	bool packageEventLog <-true parameter: "Package Event Log" category: "Logs";
+	bool packageEventLog <-false parameter: "Package Event Log" category: "Logs";
 		
-	bool stationChargeLogs <- true parameter: "Station Charge Log" category: "Logs";
+	bool stationChargeLogs <- false parameter: "Station Charge Log" category: "Logs";
 	
 	bool roadsTraveledLog <- false parameter: "Roads Traveled Log" category: "Logs";
 	

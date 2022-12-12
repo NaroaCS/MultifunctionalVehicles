@@ -5,7 +5,9 @@ import "./main.gaml"
 global {
 	
 	float distanceInGraph (point origin, point destination) {
-		return (origin distance_to destination using topology(roadNetwork));
+		point originIntersection <- roadNetwork.vertices closest_to(origin);
+		point destinationIntersection <- roadNetwork.vertices closest_to(destination);
+		return (originIntersection distance_to destinationIntersection using topology(roadNetwork));
 	}
 	
 	/*list<autonomousBike> availableAutonomousBikes(people person , package delivery) {
@@ -92,7 +94,7 @@ global {
 			autonomousBike b <- available closest_to(personIntersection); 
 			float d<- distanceInGraph(personIntersection,b.location);
 			
-			write 'Dist: '+d+' // max dist: '+maxDistancePeople_AutonomousBike;
+			//write 'Dist: '+d+' // max dist: '+maxDistancePeople_AutonomousBike;
 			if d<maxDistancePeople_AutonomousBike {
 					ask b { do pickUp(person, nil);}
 					ask person {do ride(b);}
@@ -275,7 +277,7 @@ species package control: fsm skills: [moving] {
     
     state bidding {
     	enter {
-    		write string(self) + 'entering bidding';
+    		//write string(self) + 'entering bidding';
     		if (packageEventLog or packageTripLog) {ask logger { do logEnterState; }} 
     		bidClear <-0;
     		target <- (road closest_to(self)).location;
@@ -466,7 +468,7 @@ species people control: fsm skills: [moving] {
     
     state bidding {
 		enter {
-			write string(self) + 'entering bidding';
+			//write string(self) + 'entering bidding';
 			if peopleEventLog or peopleTripLog {ask logger { do logEnterState; }} 
 			bidClear <- 0;
 			target <- (road closest_to(self)).location;
@@ -660,7 +662,7 @@ species autonomousBike control: fsm skills: [moving] {
 	}
 
 	action receiveBid(people person, package pack, float bidValue){
-		write 'Bike ' + string(self) +'received bid from:'+ person + '/'+ pack +' of value: '+ bidValue ;
+		//write 'Bike ' + string(self) +'received bid from:'+ person + '/'+ pack +' of value: '+ bidValue ;
 		biddingStart <- true;
 		if person != nil{
 			add person to: personBidders;
@@ -697,11 +699,11 @@ species autonomousBike control: fsm skills: [moving] {
 			if highestBidderUser !=nil and highestBidderPackage = nil{ //If the highest bidder was a person
 				do pickUp(highestBidderUser,nil);
 				ask highestBidderUser {do ride(myself);}
-				write 'Highest bidder for bike '+ string(self)+' person '+ highestBidderUser;
+				//write 'Highest bidder for bike '+ string(self)+' person '+ highestBidderUser;
 			}else if highestBidderPackage !=nil and highestBidderUser = nil {
 				do pickUp(nil,highestBidderPackage);
 				ask highestBidderPackage {do deliver(myself);}
-				write 'Highest bidder for bike '+ string(self)+' package '+ highestBidderPackage;
+				//write 'Highest bidder for bike '+ string(self)+' package '+ highestBidderPackage;
 			}else{
 				write 'Error: Confusion with highest bidder';
 			}
