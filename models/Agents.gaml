@@ -213,6 +213,8 @@ species package control: fsm skills: [moving] {
     float waitTime;
     int queueTime;
     int bidClear <- 0;
+    
+    float tripdistance <- 0.0;
         
 	aspect base {
     	color <- color_map[state];
@@ -370,7 +372,9 @@ species package control: fsm skills: [moving] {
 	
 	state delivered {
 		enter{
+			tripdistance <- host.distanceInGraph(self.start_point, self.target_point);
 			if packageEventLog or packageTripLog {ask logger{ do logEnterState;}}
+
 		}
 	}
 }
@@ -414,6 +418,8 @@ species people control: fsm skills: [moving] {
     float waitTime;
     int queueTime;
     int bidClear;
+    
+    float tripdistance <- 0.0;
     
     int register <-0;
     aspect base {
@@ -563,7 +569,9 @@ species people control: fsm skills: [moving] {
 		enter{
 			if peopleEventLog or peopleTripLog {ask logger{ do logEnterState;}}
 		}
-		transition to:wandering when: location=target{}
+		transition to:wandering when: location=target{
+			 tripdistance <-  host.distanceInGraph(self.start_point, self.target_point);
+		}
 		exit {
 			if peopleEventLog {ask logger{do logExitState;}}
 		}

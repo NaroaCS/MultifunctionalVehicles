@@ -213,8 +213,6 @@ species peopleLogger parent: Logger mirrors: people {
 		loggingAgent <- persontarget;
 	}
 	
-	float tripdistance <- 0.0;
-	
 	date departureTime;
 	int departureCycle;
     int cycleAutonomousBikeRequested;
@@ -258,11 +256,6 @@ species peopleLogger parent: Logger mirrors: people {
 				}
 				match "wandering" {
 					//trip has ended
-					if tripdistance = 0 {
-						write 'Error in tripdistance log User';
-						//tripdistance <- persontarget.start_point distance_to persontarget.target_point;
-						//TODO: review this ! 
-					}
 				
 					if cycle != 0 {
 						ask persontarget.tripLogger {
@@ -274,7 +267,7 @@ species peopleLogger parent: Logger mirrors: people {
 								(cycle*step - myself.departureCycle*step)/60,
 								persontarget.start_point.location,
 								persontarget.target_point.location,
-								myself.tripdistance
+								persontarget.tripdistance
 							);
 						}
 					}
@@ -288,7 +281,7 @@ species peopleLogger parent: Logger mirrors: people {
 		if timeStartActivity= nil {timeStartstr <- nil;}else{timeStartstr <- string(timeStartActivity,"HH:mm:ss");}
 		if current_date = nil {currentstr <- nil;} else {currentstr <- string(current_date,"HH:mm:ss");}
 		
-		do log(['END: ' + currentState, logmessage, timeStartstr, currentstr, (cycle*step - cycleStartActivity*step)/60, locationStartActivity distance_to persontarget.location]);
+		do log(['END: ' + currentState, logmessage, timeStartstr, currentstr, (cycle*step - cycleStartActivity*step)/60, host.distanceInGraph( locationStartActivity, persontarget.location)]);
 	}
 	action logEvent(string event) {
 		do log([event]);
@@ -314,8 +307,6 @@ species packageLogger parent: Logger mirrors: package {
 		packagetarget.logger <- self;
 		loggingAgent <- packagetarget;
 	}
-	
-	float tripdistance <- 0.0;
 	
 	date departureTime;
 	int departureCycle;
@@ -354,10 +345,7 @@ species packageLogger parent: Logger mirrors: package {
 					served <- true;
 				}
 				match "delivered"{
-					if tripdistance = 0 {
-						tripdistance <- packagetarget.start_point distance_to packagetarget.target_point;
-					}
-				
+		
 					if cycle != 0 {
 						ask packagetarget.tripLogger {
 							do logTrip(
@@ -368,7 +356,7 @@ species packageLogger parent: Logger mirrors: package {
 								(cycle*step - myself.departureCycle*step)/60,
 								packagetarget.start_point.location,
 								packagetarget.target_point.location,
-								myself.tripdistance
+								packagetarget.tripdistance
 							);						
 						}
 					} 
@@ -382,7 +370,7 @@ species packageLogger parent: Logger mirrors: package {
 		if timeStartActivity= nil {timeStartstr <- nil;}else{timeStartstr <- string(timeStartActivity,"HH:mm:ss");}
 		if current_date = nil {currentstr <- nil;} else {currentstr <- string(current_date,"HH:mm:ss");}
 		
-		do log(['END: ' + currentState, logmessage, timeStartstr, currentstr, (cycle*step - cycleStartActivity*step)/60, locationStartActivity distance_to packagetarget.location]);
+		do log(['END: ' + currentState, logmessage, timeStartstr, currentstr, (cycle*step - cycleStartActivity*step)/60, host.distanceInGraph(locationStartActivity, packagetarget.location)]);
 	}
 	action logEvent(string event) {
 		do log([event]);
