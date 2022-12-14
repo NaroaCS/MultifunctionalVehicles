@@ -242,6 +242,11 @@ species peopleLogger parent: Logger mirrors: people {
 					write  string(self)+"Autonomous bike requested at Cycle: "+cycleAutonomousBikeRequested;
 					served <- false;
 				}
+				match "requested_with_bid" {
+					cycleAutonomousBikeRequested <- cycle;
+					write  string(self)+"Autonomous bike requested at Cycle: "+cycleAutonomousBikeRequested;
+					served <- false;
+				}
 				match "riding_autonomousBike" {
 					//trip is served
 					write  string(self)+"Bike arrived at cycle : "+cycle;
@@ -254,7 +259,9 @@ species peopleLogger parent: Logger mirrors: people {
 				match "wandering" {
 					//trip has ended
 					if tripdistance = 0 {
-						tripdistance <- persontarget.start_point distance_to persontarget.target_point;
+						write 'Error in tripdistance log User';
+						//tripdistance <- persontarget.start_point distance_to persontarget.target_point;
+						//TODO: review this ! 
 					}
 				
 					if cycle != 0 {
@@ -333,6 +340,10 @@ species packageLogger parent: Logger mirrors: package {
 		if packageTripLog{ 
 			switch currentState {
 				match "requestingAutonomousBike" {
+					cycleRequestingAutonomousBike <- cycle;
+					served <- false;
+				}
+				match "requested_with_bid" {
 					cycleRequestingAutonomousBike <- cycle;
 					served <- false;
 				}

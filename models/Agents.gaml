@@ -299,18 +299,28 @@ species package control: fsm skills: [moving] {
 		enter{
     		if (packageEventLog or packageTripLog){ask logger {do logEnterState;}}
     	}
-	    transition to: firstmile when: host.bikeAssigned(nil,self){ 
+	    transition to: requested_with_bid when: host.bikeAssigned(nil,self){ 
 	    	target <- (road closest_to(self)).location;
 	    }
 	    transition to: bidding when: bidClear = 1 {
 	    	write string(self)+ 'lost bid, will bid again';
 	    }
 	    exit {
-	    	//if packageEventLog {ask logger { do logExitState; }}
-	    	if packageEventLog {ask logger { do logExitState("Requested Bike " + myself.autonomousBikeToDeliver); }}
+	    	if packageEventLog {ask logger { do logExitState; }}
+	    	//if packageEventLog {ask logger { do logExitState("Requested Bike " + myself.autonomousBikeToDeliver); }}
 		}
    
    }
+
+	state requested_with_bid{
+		enter{
+			if packageEventLog or packageTripLog {ask logger { do logEnterState; }} 
+		}
+		transition to:firstmile {}
+		exit {
+			if packageEventLog {ask logger { do logExitState("Requested Bike " + myself.autonomousBikeToDeliver); }}
+		}
+	}
 
 	state firstmile {
 		enter{
@@ -489,7 +499,7 @@ species people control: fsm skills: [moving] {
 		enter {
 			if peopleEventLog or peopleTripLog {ask logger { do logEnterState; }} 
 		}
-		transition to: firstmile when: host.bikeAssigned(self, nil) {
+		transition to: requested_with_bid when: host.bikeAssigned(self, nil) {
 			target <- (road closest_to(self)).location;
 		}
 		transition to: bidding when: bidClear = 1 {
@@ -497,10 +507,20 @@ species people control: fsm skills: [moving] {
 			
 		}
 		exit {
-			if peopleEventLog {ask logger { do logExitState("Requested Bike " + myself.autonomousBikeToRide); }}
-			// peopleEventLog { ask logger {do logExitState;}}
+			//if peopleEventLog {ask logger { do logExitState("Requested Bike " + myself.autonomousBikeToRide); }}
+			if peopleEventLog { ask logger {do logExitState;}}
 		}
 		
+	}
+	
+	state requested_with_bid{
+		enter{
+			if peopleEventLog or peopleTripLog {ask logger { do logEnterState; }} 
+		}
+		transition to:firstmile {}
+		exit {
+			if peopleEventLog {ask logger { do logExitState("Requested Bike " + myself.autonomousBikeToRide); }}
+		}
 	}
 
 	

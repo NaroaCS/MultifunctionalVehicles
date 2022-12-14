@@ -162,8 +162,8 @@ experiment multifunctionalVehiclesVisual type: gui {
 	parameter var: numAutonomousBikes init: numAutonomousBikes;
 	//float minimum_cycle_duration<-0.01;
 	parameter var: peopleEnabled init:true;
-	parameter var: packagesEnabled init:false;
-	parameter var: biddingEnabled init: false;
+	parameter var: packagesEnabled init:true;
+	parameter var: biddingEnabled init: true;
     output {
 		display multifunctionalVehiclesVisual type:opengl background: #black axes: false{	 
 			species building aspect: type visible:show_building position:{0,0,-0.001};

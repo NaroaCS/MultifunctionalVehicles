@@ -9,11 +9,11 @@ global {
 	float step <- 2 #sec; //TODO: Change to 2 
 	
 	//Simulation starting date
-	date starting_date <- date("2019-10-07 00:00:00"); 
+	date starting_date <- date("2019-10-07 09:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
-	date logDate <- date("2022-12-12 16:47:00");
+	date logDate <- date("2022-12-14 11:00:00");
 	
 	date nowDate <- #now;
 	
@@ -29,7 +29,7 @@ global {
 	
 	//----------------------Logging Parameters------------------------
 	bool loggingEnabled <- true parameter: "Logging" category: "Logs";
-	bool printsEnabled <- false parameter: "Printing" category: "Logs";
+	bool printsEnabled <- true parameter: "Printing" category: "Logs";
 	
 	bool autonomousBikeEventLog <-true parameter: "Autonomous Bike Event/Trip Log" category: "Logs";
 	
