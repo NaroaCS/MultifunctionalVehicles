@@ -32,7 +32,7 @@ global {
 	
 				return false;	 //If closest bike is too far, return false
 			}else{
-				float bidValuePerson <- (person_bid_ct -person_bid_dist_coef*d +person_bid_queue_coef*person.queueTime); 
+				float bidValuePerson <- person_bid_ct *(-person_bid_dist_coef*d +person_bid_queue_coef*person.queueTime); 
 				// Bid value ct is higher for people, its smaller for larger distances, and larger for larger queue times
 				
 				ask b { do receiveBid(person,nil,bidValuePerson);} //Send bid value to bike
@@ -49,7 +49,7 @@ global {
 				//write 'Dist: '+d+' > max dist: '+maxDistancePackage_AutonomousBike;
 				return false;	 //If closest bike is too far, return false
 			}else{
-				float bidValuePackage <- (pack_bid_ct - pack_bid_dist_coef*d+ pack_bid_queue_coef*pack.queueTime); 
+				float bidValuePackage <- pack_bid_ct* (- pack_bid_dist_coef*d+ pack_bid_queue_coef*pack.queueTime); 
 				// Bid value ct is lower for packages, its smaller for larger distances, and larger for larger queue times
 				
 				ask b { do receiveBid(nil,pack,bidValuePackage);} //Send bid value to bike
@@ -231,7 +231,7 @@ species package control: fsm skills: [moving] {
 			if (current_date.hour = start_h) {
 				queueTime <- (current_date.minute - start_min);
 			} else if (current_date.hour > start_h){
-				queueTime <- (current_date.hour-start_h)*60 + (60 - start_min);	
+				queueTime <- (current_date.hour-start_h-1)*60 + (60 - start_min) + current_date.minute;	
 			}
 		}
 		
@@ -441,7 +441,7 @@ species people control: fsm skills: [moving] {
 			if (current_date.hour = start_h) {
 				queueTime <- (current_date.minute - start_min);
 			} else if (current_date.hour > start_h){
-				queueTime <- (current_date.hour-start_h)*60 + (60 - start_min);	
+				queueTime <- (current_date.hour-start_h-1)*60 + (60 - start_min) + current_date.minute;	
 			}
 		}
 		
@@ -763,7 +763,7 @@ species autonomousBike control: fsm skills: [moving] {
 			}
 			
 		} //Wait for bidding time to end
-		transition to: endBid when: (highestBid != -100000.00) and (current_date.hour = bid_start_h and current_date.minute > (bid_start_min + maxBiddingTime)) or (current_date.hour > bid_start_h and maxBiddingTime>(60-bid_start_min)){}
+		transition to: endBid when: (highestBid != -100000.00) and (current_date.hour = bid_start_h and current_date.minute > (bid_start_min + maxBiddingTime)) or (current_date.hour > bid_start_h and (60-bid_start_min+current_date.minute)>maxBiddingTime){}
 		exit {
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}

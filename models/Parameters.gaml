@@ -9,11 +9,11 @@ global {
 	float step <- 2 #sec; //TODO: Change to 2 
 	
 	//Simulation starting date
-	date starting_date <- date("2019-10-07 09:00:00"); 
+	date starting_date <- date("2019-10-07 00:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
-	date logDate <- date("2022-12-14 11:00:00");
+	date logDate <- date("2022-12-16 17:00:00");
 	
 	date nowDate <- #now;
 	
@@ -29,7 +29,7 @@ global {
 	
 	//----------------------Logging Parameters------------------------
 	bool loggingEnabled <- true parameter: "Logging" category: "Logs";
-	bool printsEnabled <- true parameter: "Printing" category: "Logs";
+	bool printsEnabled <- false parameter: "Printing" category: "Logs";
 	
 	bool autonomousBikeEventLog <-true parameter: "Autonomous Bike Event/Trip Log" category: "Logs";
 	
@@ -51,7 +51,7 @@ global {
 	
 	
 	//-----------------Bidding-----------------------
-	int maxBiddingTime <- 2 min:0 max:60 parameter: "Maximum bidding time";
+	int maxBiddingTime <- 0 min:0 max:60 parameter: "Maximum bidding time";
 	float pack_bid_ct <- 100.00;
 	float pack_bid_dist_coef <- 1/100;
 	float pack_bid_queue_coef <- 2.0;

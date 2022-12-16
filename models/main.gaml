@@ -214,7 +214,9 @@ experiment batch_people_packages_nobid type: batch repeat: 1 until: (cycle >= nu
 }
 
 experiment batch_people_packages_bidding type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
+	
 	parameter var: numAutonomousBikes among:[200,300,400,500,600];
+	//parameter var: numAutonomousBikes among: [400,500,600];
 	parameter var: peopleEnabled init:true;
 	parameter var: packagesEnabled init:true;
 	parameter var: biddingEnabled init: true;
@@ -223,32 +225,33 @@ experiment batch_people_packages_bidding type: batch repeat: 1 until: (cycle >= 
 	//TODO: review maxDistance
 	
 	//TODO: review this params
-	parameter var: maxBiddingTime init: 2;
-	parameter var: pack_bid_ct init: 100.00;
-	parameter var: pack_bid_dist_coef init: 1/100;
+	parameter var: maxBiddingTime init: 1;
+	parameter var: pack_bid_ct init: 1.00;
+	parameter var: pack_bid_dist_coef init: 1/200;
 	parameter var: pack_bid_queue_coef init: 2.0;
-	parameter var: person_bid_ct init: 200.00;
-	parameter var: person_bid_dist_coef init: 1/100;
+	parameter var: person_bid_ct init: 4.00;
+	parameter var: person_bid_dist_coef init: 1/200;
 	parameter var: person_bid_queue_coef init: 2.0;
 
 }
 
 experiment bidding_genetic type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
+
 	parameter var: peopleEnabled init:true;
 	parameter var: packagesEnabled init:true;
 	parameter var: biddingEnabled init: true;
 	
-	//TODO: review this params
-	//parameter var: maxWaitTimePeople init: 10; //Intsead of 30 ?
-	//parameter var: maxWaitTimePackages init: 20; //Intsead of 50 ?
-	
-	parameter var: maxBiddingTime among: [1,2,3]; //TODO: make sure we are adding this time to wait time
-	parameter var: pack_bid_ct among: [100.00,200.00,300.00];
-	parameter var: pack_bid_dist_coef among: [1/100, 1/200,1/300];
-	parameter var: pack_bid_queue_coef among: [1.5,2.5,3.5];
-	parameter var: person_bid_ct among: [200.00,300.00,400.00];
-	parameter var: person_bid_dist_coef among: [1/100, 1/200,1/300]; //TODO: Maybe dist and queue are the same for bike and package?
-	parameter var: person_bid_queue_coef among: [1.5,2.5,3.5];
+	parameter var: numAutonomousBikes init:300;
+	//parameter var: maxWaitTimePeople init: 7 #mn; //Intsead of 30 ?
+	//parameter var: maxWaitTimePackages init: 14 #mn; //Intsead of 50 ?
+
+	parameter var: maxBiddingTime among: [1,2]; //TODO: make sure we are adding this time to wait time
+	parameter var: pack_bid_ct among: [1.0,2.0,3.0,4.0];
+	parameter var: pack_bid_dist_coef among: [1/50,1/100, 1/150];
+	parameter var: pack_bid_queue_coef among: [1.0,2.0,3.0];
+	parameter var: person_bid_ct among:   [1.0,2.0,3.0,4.0];
+	parameter var: person_bid_dist_coef among: [1/50,1/100, 1/150]; //TODO: Maybe dist and queue are the same for bike and package?
+	parameter var: person_bid_queue_coef among: [1.0,2.0,3.0];
 	
 	method genetic 
     pop_dim: 5 crossover_prob: 0.7 mutation_prob: 0.1 
