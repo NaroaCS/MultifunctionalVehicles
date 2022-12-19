@@ -266,6 +266,26 @@ experiment bidding_genetic type: batch repeat: 1 until: (cycle >= numberOfDays *
 
 }
 
+experiment bidding_params type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
+
+	parameter var: peopleEnabled init:true;
+	parameter var: packagesEnabled init:true;
+	parameter var: biddingEnabled init: true;
+	
+	parameter var: numAutonomousBikes init:300;
+	//parameter var: maxWaitTimePeople init: 7 #mn; //Intsead of 30 ?
+	//parameter var: maxWaitTimePackages init: 14 #mn; //Intsead of 50 ?
+
+	parameter var: maxBiddingTime init: 1; //TODO: make sure we are adding this time to wait time
+	parameter var: pack_bid_ct among: [0.5,2.0,4.0];
+	parameter var: pack_bid_dist_coef among: [1/50,1/100,1/150];
+	parameter var: pack_bid_queue_coef among: [1.0,2.0,3.0];
+	parameter var: person_bid_ct among: [0.5,2.0,4.0];
+	parameter var: person_bid_dist_coef among: [1/50,1/100, 1/150]; //TODO: Maybe dist and queue are the same for bike and package?
+	parameter var: person_bid_queue_coef among: [1.0,2.0,3.0];
+
+}
+
 /*experiment bidding_genetic type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
 	
 	parameter var: peopleEnabled init:true;
