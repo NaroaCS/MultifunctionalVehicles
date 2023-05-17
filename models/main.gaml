@@ -260,7 +260,7 @@ experiment bidding_genetic type: batch repeat: 1 until: (cycle >= numberOfDays *
 	reflex save_results {
 		ask simulations {
 			//save [numBikes,evaporation,exploitationRate ,WanderingSpeed,avg_wait ] type: csv to:"./../data/results_genetic_1500_3.csv" rewrite: (int(self) = 0) ? true : false header: true ;
-		    save [maxBiddingTime,pack_bid_ct,pack_bid_dist_coef,pack_bid_queue_coef,person_bid_ct, person_bid_dist_coef,person_bid_queue_coef] type: csv to:"./../results/results_genetic_bidding.csv" rewrite: (int(self) = 0) ? true : false header: true ;
+		    save [maxBiddingTime,pack_bid_ct,pack_bid_dist_coef,pack_bid_queue_coef,person_bid_ct, person_bid_dist_coef,person_bid_queue_coef,trips_w_good_service] type: csv to:"./../results/results_genetic_bidding_2.csv" rewrite: (int(self) = 0) ? true : false header: true ;
 		}
 	}
 
@@ -277,12 +277,12 @@ experiment bidding_params type: batch repeat: 1 until: (cycle >= numberOfDays * 
 	//parameter var: maxWaitTimePackages init: 14 #mn; //Intsead of 50 ?
 
 	parameter var: maxBiddingTime init: 1; //TODO: make sure we are adding this time to wait time
-	parameter var: pack_bid_ct among: [0.5,2.0,4.0];
-	parameter var: pack_bid_dist_coef among: [1/50,1/100,1/150];
-	parameter var: pack_bid_queue_coef among: [1.0,2.0,3.0];
-	parameter var: person_bid_ct among: [0.5,2.0,4.0];
-	parameter var: person_bid_dist_coef among: [1/50,1/100, 1/150]; //TODO: Maybe dist and queue are the same for bike and package?
-	parameter var: person_bid_queue_coef among: [1.0,2.0,3.0];
+	parameter var: pack_bid_ct among: [1.0,4.0];
+	parameter var: pack_bid_dist_coef among: [1/50, 1/150];
+	parameter var: pack_bid_queue_coef among: [1.0,4.0];
+	parameter var: person_bid_ct among:   [1.0,4.0];
+	parameter var: person_bid_dist_coef among: [1/50, 1/150]; //TODO: Maybe dist and queue are the same for bike and package?
+	parameter var: person_bid_queue_coef among: [1.0,4.0];
 
 }
 
