@@ -174,13 +174,13 @@ experiment multifunctionalVehiclesVisual type: gui {
 			species autonomousBike aspect: realistic visible:show_autonomousBike trace:30 fading: true;
 			species package aspect:base visible:show_package;
 
-			event["b"] {show_building<-!show_building;}
-			event["r"] {show_road<-!show_road;}
-			event["p"] {show_people<-!show_people;}
-			event["s"] {show_chargingStation<-!show_chargingStation;}
-			event["f"] {show_restaurant<-!show_restaurant;}
-			event["d"] {show_package<-!show_package;}
-			event["a"] {show_autonomousBike<-!show_autonomousBike;}
+			event "b" {show_building<-!show_building;}
+			event "r" {show_road<-!show_road;}
+			event "p" {show_people<-!show_people;}
+			event "s" {show_chargingStation<-!show_chargingStation;}
+			event "f" {show_restaurant<-!show_restaurant;}
+			event "d" {show_package<-!show_package;}
+			event "a" {show_autonomousBike<-!show_autonomousBike;}
 		}
     }
 }
